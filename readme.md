@@ -1,5 +1,5 @@
-﻿## CVPR2022 - Anomaly Detection via Reverse Distillation from One-Class Embedding
- ## Implementation (Official Code ⭐️ ⭐️ ⭐️ )
+﻿## Anomaly Detection via Reverse Distillation
+we develop Anomaly Detection via Reverse Distilation from [paper] (https://arxiv.org/abs/2201.10703)
 
 1. Environment
     ```Shell
