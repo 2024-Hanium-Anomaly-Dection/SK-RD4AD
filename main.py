@@ -4,15 +4,15 @@
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 
 import torch
-from dataset import get_data_transforms
+from dataset.dataset import get_data_transforms
 from torchvision.datasets import ImageFolder
 import numpy as np
 import random
 import os
 from torch.utils.data import DataLoader
-from resnet import resnet18, resnet34, resnet50, wide_resnet50_2
-from de_resnet import de_resnet18, de_resnet34, de_wide_resnet50_2, de_resnet50
-from dataset import MVTecDataset
+from model.resnet import resnet18, resnet34, resnet50, wide_resnet50_2
+from model.de_resnet import de_resnet18, de_resnet34, de_wide_resnet50_2, de_resnet50
+from dataset.dataset import MVTecDataset
 import torch.backends.cudnn as cudnn
 import argparse
 from test import evaluation, visualization, test
@@ -69,8 +69,8 @@ def train(_class_):
     print(device)
 
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
-    train_path = './mvtec/' + _class_ + '/train'
-    test_path = './mvtec/' + _class_
+    train_path = '/home/intern24/mvtec/' + _class_ + '/train'
+    test_path = '/home/intern24/mvtec/' + _class_
     ckp_path = './checkpoints/' + 'wres50_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")

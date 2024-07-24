@@ -1,11 +1,11 @@
 import torch
-from dataset import get_data_transforms, load_data
+from dataset.dataset import get_data_transforms, load_data
 from torchvision.datasets import ImageFolder
 import numpy as np
 from torch.utils.data import DataLoader
-from resnet import resnet18, resnet34, resnet50, wide_resnet50_2
-from de_resnet import de_resnet18, de_resnet50, de_wide_resnet50_2
-from dataset import MVTecDataset
+from model.resnet import resnet18, resnet34, resnet50, wide_resnet50_2
+from model.de_resnet import de_resnet18, de_resnet50, de_wide_resnet50_2
+from dataset.dataset import MVTecDataset
 from torch.nn import functional as F
 from sklearn.metrics import roc_auc_score
 import cv2
