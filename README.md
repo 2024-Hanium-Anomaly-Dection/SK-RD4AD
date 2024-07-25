@@ -1,5 +1,3 @@
-# AD_Model
-Our Anomaly Detection Model
 import torch
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
@@ -7,11 +5,22 @@ from sklearn.model_selection import train_test_split
 from torchvision import transforms
 from PIL import Image
 import os
+from scipy.stats import zscore
 
 class CustomDataset(Dataset):
-    def __init__(self, csv_file, transform=None):
+    def __init__(self, csv_file, transform=None, z_thresh=3.0):
         self.data = pd.read_csv(csv_file)
         self.transform = transform
+        
+        # Z-Score 계산 및 이상치 탐지
+        numeric_data = self.data.iloc[:, 2:]  # 이미지 경로와 라벨을 제외한 나머지 데이터를 사용
+        z_scores = zscore(numeric_data, axis=0)
+        self.data['zscore'] = z_scores.max(axis=1)
+        self.data['is_outlier'] = self.data['zscore'] > z_thresh
+        
+        # 이상치 제거
+        self.data = self.data[self.data['is_outlier'] == False]
+        self.data = self.data.drop(columns=['zscore', 'is_outlier'])
 
     def __len__(self):
         return len(self.data)
