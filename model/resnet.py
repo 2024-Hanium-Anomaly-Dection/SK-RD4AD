@@ -1,15 +1,13 @@
 import torch
 from torch import Tensor
 import torch.nn as nn
-import torch.nn.functional as F
 try:
     from torch.hub import load_state_dict_from_url
 except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 from typing import Type, Any, Callable, Union, List, Optional
-from .hybrid_encoder import TransformerEncoderLayer, CSPRepLayer, ConvNormLayer
 
-
+from .dat import DeformableAttention2D
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
@@ -168,6 +166,8 @@ class ResNet(nn.Module):
         self.inplanes = 64
         self.dilation = 1
         if replace_stride_with_dilation is None:
+            # each element in the tuple indicates if we should replace
+            # the 2x2 stride with a dilated convolution instead
             replace_stride_with_dilation = [False, False, False]
         if len(replace_stride_with_dilation) != 3:
             raise ValueError("replace_stride_with_dilation should be None "
@@ -196,12 +196,15 @@ class ResNet(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
+        # Zero-initialize the last BN in each residual branch,
+        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
+        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
         if zero_init_residual:
             for m in self.modules():
                 if isinstance(m, Bottleneck):
-                    nn.init.constant_(m.bn3.weight, 0)
+                    nn.init.constant_(m.bn3.weight, 0)  # type: ignore[arg-type]
                 elif isinstance(m, BasicBlock):
-                    nn.init.constant_(m.bn2.weight, 0)
+                    nn.init.constant_(m.bn2.weight, 0)  # type: ignore[arg-type]
 
     def _make_layer(self, block: Type[Union[BasicBlock, Bottleneck]], planes: int, blocks: int,
                     stride: int = 1, dilate: bool = False) -> nn.Sequential:
@@ -229,6 +232,7 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def _forward_impl(self, x: Tensor) -> Tensor:
+        # See note [TorchScript super()]
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
@@ -239,11 +243,11 @@ class ResNet(nn.Module):
         feature_c = self.layer3(feature_b)
         feature_d = self.layer4(feature_c)
 
+
         return [feature_a, feature_b, feature_c]
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
-
 
 
 def _resnet(
@@ -396,35 +400,27 @@ class BN_layer(nn.Module):
         self.base_width = width_per_group
         self.inplanes = 256 * block.expansion
         self.dilation = 1
-        
-        # AIFI Layers with appropriate input dimensions
-        self.aifi_layer1 = TransformerEncoderLayer(
-            d_model=256,  # Adjusted for feature_a
-            nhead=8,
-            dim_feedforward=1024,
-            dropout=0.1,
-            activation="relu"
-        )
-        self.aifi_layer2 = TransformerEncoderLayer(
-            d_model=512,  # Adjusted for feature_b
-            nhead=8,
-            dim_feedforward=2048,
-            dropout=0.1,
-            activation="relu"
-        )
-        self.aifi_layer3 = TransformerEncoderLayer(
-            d_model=1024,  # Adjusted for feature_c
-            nhead=8,
-            dim_feedforward=4096,
-            dropout=0.1,
-            activation="relu"
-        )
-        
-        # Convolution to unify dimensions
-        self.conv1 = ConvNormLayer(256 + 512 + 1024, 2048, kernel_size=1, stride=1)
-        
-        # Existing OCE Replacement
-        self.ccff_layer = CSPRepLayer(2048, 256, num_blocks=3, act="silu")
+        self.bn_layer = self._make_layer(block, 512, layers, stride=2)
+
+        self.conv1 = conv3x3(64 * block.expansion, 128 * block.expansion, 2)
+        self.bn1 = norm_layer(128 * block.expansion)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = conv3x3(128 * block.expansion, 256 * block.expansion, 2)
+        self.bn2 = norm_layer(256 * block.expansion)
+        self.conv3 = conv3x3(128 * block.expansion, 256 * block.expansion, 2)
+        self.bn3 = norm_layer(256 * block.expansion)
+
+        self.conv4 = conv1x1(1024 * block.expansion, 512 * block.expansion, 1)
+        self.bn4 = norm_layer(512 * block.expansion)
+
+        ##DAT ATTN
+        self.dat = DeformableAttention2D(
+                            dim = 3072,
+                            downsample_factor = 4,
+                            offset_scale = 2,
+                            offset_kernel_size = 6,
+                            offset_groups = 1
+                        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -443,12 +439,12 @@ class BN_layer(nn.Module):
             stride = 1
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
-                conv1x1(self.inplanes * 3, planes * block.expansion, stride),
+                conv1x1(self.inplanes*3, planes * block.expansion, stride),
                 norm_layer(planes * block.expansion),
             )
 
         layers = []
-        layers.append(block(self.inplanes * 3, planes, stride, downsample, self.groups,
+        layers.append(block(self.inplanes*3, planes, stride, downsample, self.groups,
                             self.base_width, previous_dilation, norm_layer))
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
@@ -457,40 +453,26 @@ class BN_layer(nn.Module):
                                 norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
-    
+
     def _forward_impl(self, x: Tensor) -> Tensor:
         #print(f"Input shapes: {[f.shape for f in x]}")
-        
-        l1 = self.aifi_layer1(x[0])
+        l1 = self.relu(self.bn2(self.conv2(self.relu(self.bn1(self.conv1(x[0]))))))
         #print(f"l1 shape: {l1.shape}")
-        
-        l2 = self.aifi_layer2(x[1])
+        l2 = self.relu(self.bn3(self.conv3(x[1])))
         #print(f"l2 shape: {l2.shape}")
-        
-        l3 = self.aifi_layer3(x[2])
-        #print(f"l3 shape: {l3.shape}")
-        
-        # Interpolating to match dimensions
-        size = l1.shape[-2:]
-        l2 = F.interpolate(l2, size=size, mode='bilinear', align_corners=True)
-        l3 = F.interpolate(l3, size=size, mode='bilinear', align_corners=True)
-        #print(f"Interpolated l2 shape: {l2.shape}")
-        #print(f"Interpolated l3 shape: {l3.shape}")
-        
-        feature = torch.cat([l1, l2, l3], dim=1)
+        feature = torch.cat([l1,l2,x[2]],1)
         #print(f"Concatenated feature shape: {feature.shape}")
-        
-        feature = self.conv1(feature)
-        #print(f"Feature after conv1 shape: {feature.shape}")
-        
-        output = self.ccff_layer(feature)
+        feature = self.dat(feature)
+        output = self.bn_layer(feature)
         #print(f"Output shape: {output.shape}")
+        #x = self.avgpool(feature_d)
+        #x = torch.flatten(x, 1)
+        #x = self.fc(x)
 
         return output.contiguous()
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
-
 
 
 def resnet18(pretrained: bool = False, progress: bool = True,**kwargs: Any) -> ResNet:

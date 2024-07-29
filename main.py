@@ -1,3 +1,8 @@
+# This is a sample Python script.
+
+# Press ⌃R to execute it or replace it with your code.
+# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+
 import torch
 from dataset.dataset import get_data_transforms
 from torchvision.datasets import ImageFolder
@@ -16,6 +21,7 @@ from torch.nn import functional as F
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
+
 def setup_seed(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
@@ -24,33 +30,39 @@ def setup_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-def loss_function(a, b):
+def loss_fucntion(a, b):
+    #mse_loss = torch.nn.MSELoss()
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
     for item in range(len(a)):
-        loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
-                                        b[item].view(b[item].shape[0], -1)))
+        #print(a[item].shape)
+        #print(b[item].shape)
+        #loss += 0.1*mse_loss(a[item], b[item])
+        loss += torch.mean(1-cos_loss(a[item].view(a[item].shape[0],-1),
+                                      b[item].view(b[item].shape[0],-1)))
     return loss
 
 def loss_concat(a, b):
+    mse_loss = torch.nn.MSELoss()
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
     a_map = []
     b_map = []
     size = a[0].shape[-1]
     for item in range(len(a)):
+        #loss += mse_loss(a[item], b[item])
         a_map.append(F.interpolate(a[item], size=size, mode='bilinear', align_corners=True))
         b_map.append(F.interpolate(b[item], size=size, mode='bilinear', align_corners=True))
-    a_map = torch.cat(a_map, 1)
-    b_map = torch.cat(b_map, 1)
-    loss += torch.mean(1 - cos_loss(a_map, b_map))
+    a_map = torch.cat(a_map,1)
+    b_map = torch.cat(b_map,1)
+    loss += torch.mean(1-cos_loss(a_map,b_map))
     return loss
 
 def train(_class_):
     print(_class_)
     epochs = 200
     learning_rate = 0.005
-    batch_size = 1 #16
+    batch_size =16
     image_size = 256
         
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -59,7 +71,7 @@ def train(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
     test_path = '/home/intern24/mvtec/' + _class_
-    ckp_path = '/home/intern24/anomaly_checkpoints/' + 'wres50_'+_class_+'.pth'
+    ckp_path = './checkpoints/' + 'wres50_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -74,6 +86,7 @@ def train(_class_):
 
     optimizer = torch.optim.Adam(list(decoder.parameters())+list(bn.parameters()), lr=learning_rate, betas=(0.5,0.999))
 
+
     for epoch in range(epochs):
         bn.train()
         decoder.train()
@@ -81,8 +94,8 @@ def train(_class_):
         for img, label in train_dataloader:
             img = img.to(device)
             inputs = encoder(img)
-            outputs = decoder(bn(inputs))
-            loss = loss_function(inputs, outputs)
+            outputs = decoder(bn(inputs))#bn(inputs))
+            loss = loss_fucntion(inputs, outputs)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -95,9 +108,14 @@ def train(_class_):
                         'decoder': decoder.state_dict()}, ckp_path)
     return auroc_px, auroc_sp, aupro_px
 
+
+
+
 if __name__ == '__main__':
+
     setup_seed(111)
     item_list = ['carpet', 'bottle', 'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill',
                  'transistor', 'metal_nut', 'screw','toothbrush', 'zipper', 'tile', 'wood']
     for i in item_list:
         train(i)
+

@@ -7,8 +7,6 @@ except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 from typing import Type, Any, Callable, Union, List, Optional
 
-from .hybrid_encoder import TransformerEncoderLayer, CSPRepLayer, ConvNormLayer
-
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
@@ -97,6 +95,12 @@ class BasicBlock(nn.Module):
 
 
 class Bottleneck(nn.Module):
+    # Bottleneck in torchvision places the stride for downsampling at 3x3 convolution(self.conv2)
+    # while original implementation places the stride at the first 1x1 convolution(self.conv1)
+    # according to "Deep residual learning for image recognition"https://arxiv.org/abs/1512.03385.
+    # This variant is also known as ResNet V1.5 and improves accuracy according to
+    # https://ngc.nvidia.com/catalog/model-scripts/nvidia:resnet_50_v1_5_for_pytorch.
+
     expansion: int = 4
 
     def __init__(
@@ -129,36 +133,36 @@ class Bottleneck(nn.Module):
         self.stride = stride
 
     def forward(self, x: Tensor) -> Tensor:
-        print(f"Bottleneck input shape: {x.shape}")
+        #print(f"Bottleneck input shape: {x.shape}")
         identity = x
 
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
-        print(f"Bottleneck conv1 output shape: {out.shape}")
+        #print(f"Bottleneck conv1 output shape: {out.shape}")
 
         out = self.conv2(out)
         out = self.bn2(out)
         out = self.relu(out)
-        print(f"Bottleneck conv2 output shape: {out.shape}")
+        #print(f"Bottleneck conv2 output shape: {out.shape}")
 
         out = self.conv3(out)
         out = self.bn3(out)
-        print(f"Bottleneck conv3 output shape: {out.shape}")
+        #print(f"Bottleneck conv3 output shape: {out.shape}")
 
         if self.upsample is not None:
             identity = self.upsample(x)
-            print(f"Bottleneck upsample output shape: {identity.shape}")
+            #print(f"Bottleneck upsample output shape: {identity.shape}")
 
         out += identity
         out = self.relu(out)
-        print(f"Bottleneck final output shape: {out.shape}")
+        #print(f"Bottleneck final output shape: {out.shape}")
 
         return out
 
 
-
 class ResNet(nn.Module):
+
     def __init__(
         self,
         block: Type[Union[BasicBlock, Bottleneck]],
@@ -175,27 +179,31 @@ class ResNet(nn.Module):
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
 
-        self.inplanes = 256
+        self.inplanes = 512 * block.expansion
         self.dilation = 1
         if replace_stride_with_dilation is None:
+            # each element in the tuple indicates if we should replace
+            # the 2x2 stride with a dilated convolution instead
             replace_stride_with_dilation = [False, False, False]
+        if len(replace_stride_with_dilation) != 3:
+            raise ValueError("replace_stride_with_dilation should be None "
+                             "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-
-        self.layer1 = self._make_layer(block, 512, layers[0], stride=2)
-        self.layer2 = self._make_layer(block, 256, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
-        self.layer3 = self._make_layer(block, 64, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
-
-        self.aifi_layer1 = TransformerEncoderLayer(d_model=512, nhead=8, dim_feedforward=2048, dropout=0.1, activation="relu")
-        self.aifi_layer2 = TransformerEncoderLayer(d_model=256, nhead=8, dim_feedforward=1024, dropout=0.1, activation="relu")
-        self.aifi_layer3 = TransformerEncoderLayer(d_model=64, nhead=8, dim_feedforward=256, dropout=0.1, activation="relu")
-
-        self.conv1x1_l1 = ConvNormLayer(512, 1024, kernel_size=1, stride=1)
-        self.conv1x1_l2 = ConvNormLayer(256, 1024, kernel_size=1, stride=1)
-        self.conv1x1_l3 = ConvNormLayer(64, 1024, kernel_size=1, stride=1)
-
-        self.conv1 = ConvNormLayer(1024 * 3, 1024, kernel_size=1, stride=1)
-        self.ccff_layer = CSPRepLayer(1024, 256, num_blocks=3, act="silu")
+        #self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3,
+        #                       bias=False)
+        #self.bn1 = norm_layer(self.inplanes)
+        #self.relu = nn.ReLU(inplace=True)
+        #self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        self.layer1 = self._make_layer(block, 256, layers[0], stride=2)
+        self.layer2 = self._make_layer(block, 128, layers[1], stride=2,
+                                       dilate=replace_stride_with_dilation[0])
+        self.layer3 = self._make_layer(block, 64, layers[2], stride=2,
+                                       dilate=replace_stride_with_dilation[1])
+        #self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
+        #                               dilate=replace_stride_with_dilation[2])
+        #self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        #self.fc = nn.Linear(512 * block.expansion, num_classes)
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -204,14 +212,18 @@ class ResNet(nn.Module):
                 nn.init.constant_(m.weight, 1)
                 nn.init.constant_(m.bias, 0)
 
+        # Zero-initialize the last BN in each residual branch,
+        # so that the residual branch starts with zeros, and each residual block behaves like an identity.
+        # This improves the model by 0.2~0.3% according to https://arxiv.org/abs/1706.02677
         if zero_init_residual:
             for m in self.modules():
                 if isinstance(m, Bottleneck):
-                    nn.init.constant_(m.bn3.weight, 0)
+                    nn.init.constant_(m.bn3.weight, 0)  # type: ignore[arg-type]
                 elif isinstance(m, BasicBlock):
-                    nn.init.constant_(m.bn2.weight, 0)
+                    nn.init.constant_(m.bn2.weight, 0)  # type: ignore[arg-type]
 
-    def _make_layer(self, block: Type[Union[BasicBlock, Bottleneck]], planes: int, blocks: int, stride: int = 1, dilate: bool = False) -> nn.Sequential:
+    def _make_layer(self, block: Type[Union[BasicBlock, Bottleneck]], planes: int, blocks: int,
+                    stride: int = 1, dilate: bool = False) -> nn.Sequential:
         norm_layer = self._norm_layer
         upsample = None
         previous_dilation = self.dilation
@@ -225,58 +237,32 @@ class ResNet(nn.Module):
             )
 
         layers = []
-        layers.append(block(self.inplanes, planes, stride, upsample, self.groups, self.base_width, previous_dilation, norm_layer))
+        layers.append(block(self.inplanes, planes, stride, upsample, self.groups,
+                            self.base_width, previous_dilation, norm_layer))
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
-            layers.append(block(self.inplanes, planes, groups=self.groups, base_width=self.base_width, dilation=self.dilation, norm_layer=norm_layer))
+            layers.append(block(self.inplanes, planes, groups=self.groups,
+                                base_width=self.base_width, dilation=self.dilation,
+                                norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
 
     def _forward_impl(self, x: Tensor) -> Tensor:
-        print(f"ResNet input shape: {x.shape}")
-        
-        feature_a = self.layer1(x)
-        print(f"ResNet layer1 output shape: {feature_a.shape}")
-        
-        feature_b = self.layer2(feature_a)
-        print(f"ResNet layer2 output shape: {feature_b.shape}")
-        
-        feature_c = self.layer3(feature_b)
-        print(f"ResNet layer3 output shape: {feature_c.shape}")
+        #print(f"ResNet input shape: {x.shape}")
 
-        l1 = self.aifi_layer1(feature_a)
-        print(f"ResNet AIFI layer1 output shape: {l1.shape}")
-        
-        l2 = self.aifi_layer2(feature_b)
-        print(f"ResNet AIFI layer2 output shape: {l2.shape}")
-        
-        l3 = self.aifi_layer3(feature_c)
-        print(f"ResNet AIFI layer3 output shape: {l3.shape}")
+        feature_a = self.layer1(x)  # 512*8*8->256*16*16
+        #print(f"ResNet layer1 output shape: {feature_a.shape}")
 
-        l1 = self.conv1x1_l1(l1)
-        print(f"ResNet conv1x1_l1 output shape: {l1.shape}")
-        
-        l2 = self.conv1x1_l2(l2)
-        print(f"ResNet conv1x1_l2 output shape: {l2.shape}")
-        
-        l3 = self.conv1x1_l3(l3)
-        print(f"ResNet conv1x1_l3 output shape: {l3.shape}")
+        feature_b = self.layer2(feature_a)  # 256*16*16->128*32*32
+        #print(f"ResNet layer2 output shape: {feature_b.shape}")
 
-        feature = torch.cat([l1, l2, l3], dim=1)
-        print(f"ResNet concatenated feature shape: {feature.shape}")
-        
-        feature = self.conv1(feature)
-        print(f"ResNet final conv1 output shape: {feature.shape}")
-        
-        output = self.ccff_layer(feature)
-        print(f"ResNet final output shape: {output.shape}")
+        feature_c = self.layer3(feature_b)  # 128*32*32->64*64*64
+        #print(f"ResNet layer3 output shape: {feature_c.shape}")
 
-        return output
+        return [feature_c, feature_b, feature_a]
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
-
-
 
 
 def _resnet(
