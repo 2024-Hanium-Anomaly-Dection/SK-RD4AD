@@ -123,6 +123,10 @@ class TransformerEncoderLayer(nn.Module):
         return tensor if pos_embed is None else tensor + pos_embed
 
     def forward(self, src, src_mask=None, pos_embed=None) -> torch.Tensor:
+        # src를 4D에서 3D로 변환
+        batch_size, channels, height, width = src.size()
+        src = src.flatten(2).permute(0, 2, 1)  # [batch_size, height*width, channels]
+
         residual = src
         if self.normalize_before:
             src = self.norm1(src)
@@ -140,6 +144,9 @@ class TransformerEncoderLayer(nn.Module):
         src = residual + self.dropout2(src)
         if not self.normalize_before:
             src = self.norm2(src)
+
+        # src를 다시 3D에서 4D로 변환
+        src = src.permute(0, 2, 1).view(batch_size, channels, height, width)
         return src
 
 class TransformerEncoder(nn.Module):
