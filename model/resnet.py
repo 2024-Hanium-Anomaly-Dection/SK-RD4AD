@@ -7,6 +7,7 @@ except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 from typing import Type, Any, Callable, Union, List, Optional
 
+from .dat import DeformableAttention2D
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
@@ -412,6 +413,14 @@ class BN_layer(nn.Module):
         self.conv4 = conv1x1(1024 * block.expansion, 512 * block.expansion, 1)
         self.bn4 = norm_layer(512 * block.expansion)
 
+        ##DAT ATTN
+        self.dat = DeformableAttention2D(
+                            dim = 3072,
+                            downsample_factor = 4,
+                            offset_scale = 2,
+                            offset_kernel_size = 6,
+                            offset_groups = 1
+                        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -446,12 +455,16 @@ class BN_layer(nn.Module):
         return nn.Sequential(*layers)
 
     def _forward_impl(self, x: Tensor) -> Tensor:
-        # See note [TorchScript super()]
-        #x = self.cbam(x)
+        #print(f"Input shapes: {[f.shape for f in x]}")
         l1 = self.relu(self.bn2(self.conv2(self.relu(self.bn1(self.conv1(x[0]))))))
+        #print(f"l1 shape: {l1.shape}")
         l2 = self.relu(self.bn3(self.conv3(x[1])))
+        #print(f"l2 shape: {l2.shape}")
         feature = torch.cat([l1,l2,x[2]],1)
+        #print(f"Concatenated feature shape: {feature.shape}")
+        feature = self.dat(feature)
         output = self.bn_layer(feature)
+        #print(f"Output shape: {output.shape}")
         #x = self.avgpool(feature_d)
         #x = torch.flatten(x, 1)
         #x = self.fc(x)
