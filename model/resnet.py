@@ -6,6 +6,8 @@ try:
 except ImportError:
     from torch.utils.model_zoo import load_url as load_state_dict_from_url
 from typing import Type, Any, Callable, Union, List, Optional
+from hybrid_encoder import TransformerEncoderLayer, CSPRepLayer, ConvNormLayer
+
 
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
@@ -399,18 +401,31 @@ class BN_layer(nn.Module):
         self.base_width = width_per_group
         self.inplanes = 256 * block.expansion
         self.dilation = 1
-        self.bn_layer = self._make_layer(block, 512, layers, stride=2)
+        # self.bn_layer = self._make_layer(block, 512, layers, stride=2)
 
-        self.conv1 = conv3x3(64 * block.expansion, 128 * block.expansion, 2)
-        self.bn1 = norm_layer(128 * block.expansion)
-        self.relu = nn.ReLU(inplace=True)
-        self.conv2 = conv3x3(128 * block.expansion, 256 * block.expansion, 2)
-        self.bn2 = norm_layer(256 * block.expansion)
-        self.conv3 = conv3x3(128 * block.expansion, 256 * block.expansion, 2)
-        self.bn3 = norm_layer(256 * block.expansion)
+        # self.conv1 = conv3x3(64 * block.expansion, 128 * block.expansion, 2)
+        # self.bn1 = norm_layer(128 * block.expansion)
+        # self.relu = nn.ReLU(inplace=True)
+        # self.conv2 = conv3x3(128 * block.expansion, 256 * block.expansion, 2)
+        # self.bn2 = norm_layer(256 * block.expansion)
+        # self.conv3 = conv3x3(128 * block.expansion, 256 * block.expansion, 2)
+        # self.bn3 = norm_layer(256 * block.expansion)
 
-        self.conv4 = conv1x1(1024 * block.expansion, 512 * block.expansion, 1)
-        self.bn4 = norm_layer(512 * block.expansion)
+        # self.conv4 = conv1x1(1024 * block.expansion, 512 * block.expansion, 1)
+        # self.bn4 = norm_layer(512 * block.expansion)
+
+        # 기존 MFF 대체 부분
+        self.aifi_layer = TransformerEncoderLayer(
+            d_model=512,  # example value
+            nhead=8,
+            dim_feedforward=2048,
+            dropout=0.1,
+            activation="relu"
+        )
+        self.conv1 = ConvNormLayer(512 * 3, 512, kernel_size=1, stride=1)  # concat한 후 AIFI로 처리
+
+        # 기존 OCE 대체 부분
+        self.ccff_layer = CSPRepLayer(512, 256, num_blocks=3, act="silu")
 
 
         for m in self.modules():
@@ -444,17 +459,27 @@ class BN_layer(nn.Module):
                                 norm_layer=norm_layer))
 
         return nn.Sequential(*layers)
-
+    
+    ##MFF부분에 해당##
     def _forward_impl(self, x: Tensor) -> Tensor:
         # See note [TorchScript super()]
         #x = self.cbam(x)
-        l1 = self.relu(self.bn2(self.conv2(self.relu(self.bn1(self.conv1(x[0]))))))
-        l2 = self.relu(self.bn3(self.conv3(x[1])))
-        feature = torch.cat([l1,l2,x[2]],1)
-        output = self.bn_layer(feature)
+
+        ##MFF##
+        # l1 = self.relu(self.bn2(self.conv2(self.relu(self.bn1(self.conv1(x[0]))))))
+        # l2 = self.relu(self.bn3(self.conv3(x[1])))
+        # feature = torch.cat([l1,l2,x[2]],1)
+        # output = self.bn_layer(feature)
         #x = self.avgpool(feature_d)
         #x = torch.flatten(x, 1)
         #x = self.fc(x)
+        
+        l1 = self.aifi_layer(x[0])
+        l2 = self.aifi_layer(x[1])
+        l3 = self.aifi_layer(x[2])
+        feature = torch.cat([l1, l2, l3], dim=1)
+        feature = self.conv1(feature)  # AIFI로 대체된 conv1
+        output = self.ccff_layer(feature)  # CCFF로 대체된 병목 계층
 
         return output.contiguous()
 
