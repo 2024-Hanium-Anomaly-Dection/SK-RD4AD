@@ -459,32 +459,32 @@ class BN_layer(nn.Module):
         return nn.Sequential(*layers)
     
     def _forward_impl(self, x: Tensor) -> Tensor:
-        print(f"Input shapes: {[f.shape for f in x]}")
+        #print(f"Input shapes: {[f.shape for f in x]}")
         
         l1 = self.aifi_layer1(x[0])
-        print(f"l1 shape: {l1.shape}")
+        #print(f"l1 shape: {l1.shape}")
         
         l2 = self.aifi_layer2(x[1])
-        print(f"l2 shape: {l2.shape}")
+        #print(f"l2 shape: {l2.shape}")
         
         l3 = self.aifi_layer3(x[2])
-        print(f"l3 shape: {l3.shape}")
+        #print(f"l3 shape: {l3.shape}")
         
         # Interpolating to match dimensions
         size = l1.shape[-2:]
         l2 = F.interpolate(l2, size=size, mode='bilinear', align_corners=True)
         l3 = F.interpolate(l3, size=size, mode='bilinear', align_corners=True)
-        print(f"Interpolated l2 shape: {l2.shape}")
-        print(f"Interpolated l3 shape: {l3.shape}")
+        #print(f"Interpolated l2 shape: {l2.shape}")
+        #print(f"Interpolated l3 shape: {l3.shape}")
         
         feature = torch.cat([l1, l2, l3], dim=1)
-        print(f"Concatenated feature shape: {feature.shape}")
+        #print(f"Concatenated feature shape: {feature.shape}")
         
         feature = self.conv1(feature)
-        print(f"Feature after conv1 shape: {feature.shape}")
+        #print(f"Feature after conv1 shape: {feature.shape}")
         
         output = self.ccff_layer(feature)
-        print(f"Output shape: {output.shape}")
+        #print(f"Output shape: {output.shape}")
 
         return output.contiguous()
 

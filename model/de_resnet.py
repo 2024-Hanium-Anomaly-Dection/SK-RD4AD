@@ -129,24 +129,30 @@ class Bottleneck(nn.Module):
         self.stride = stride
 
     def forward(self, x: Tensor) -> Tensor:
+        print(f"Bottleneck input shape: {x.shape}")
         identity = x
 
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
+        print(f"Bottleneck conv1 output shape: {out.shape}")
 
         out = self.conv2(out)
         out = self.bn2(out)
         out = self.relu(out)
+        print(f"Bottleneck conv2 output shape: {out.shape}")
 
         out = self.conv3(out)
         out = self.bn3(out)
+        print(f"Bottleneck conv3 output shape: {out.shape}")
 
         if self.upsample is not None:
             identity = self.upsample(x)
+            print(f"Bottleneck upsample output shape: {identity.shape}")
 
         out += identity
         out = self.relu(out)
+        print(f"Bottleneck final output shape: {out.shape}")
 
         return out
 
@@ -169,7 +175,7 @@ class ResNet(nn.Module):
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
 
-        self.inplanes = 1024
+        self.inplanes = 256
         self.dilation = 1
         if replace_stride_with_dilation is None:
             replace_stride_with_dilation = [False, False, False]
@@ -180,28 +186,9 @@ class ResNet(nn.Module):
         self.layer2 = self._make_layer(block, 256, layers[1], stride=2, dilate=replace_stride_with_dilation[0])
         self.layer3 = self._make_layer(block, 64, layers[2], stride=2, dilate=replace_stride_with_dilation[1])
 
-        # AIFI 레이어들을 각각의 크기에 맞게 정의
-        self.aifi_layer1 = TransformerEncoderLayer(
-            d_model=512,  # feature_a에 맞게 정의
-            nhead=8,
-            dim_feedforward=2048,
-            dropout=0.1,
-            activation="relu"
-        )
-        self.aifi_layer2 = TransformerEncoderLayer(
-            d_model=256,  # feature_b에 맞게 정의
-            nhead=8,
-            dim_feedforward=1024,
-            dropout=0.1,
-            activation="relu"
-        )
-        self.aifi_layer3 = TransformerEncoderLayer(
-            d_model=64,  # feature_c에 맞게 정의
-            nhead=8,
-            dim_feedforward=256,
-            dropout=0.1,
-            activation="relu"
-        )
+        self.aifi_layer1 = TransformerEncoderLayer(d_model=512, nhead=8, dim_feedforward=2048, dropout=0.1, activation="relu")
+        self.aifi_layer2 = TransformerEncoderLayer(d_model=256, nhead=8, dim_feedforward=1024, dropout=0.1, activation="relu")
+        self.aifi_layer3 = TransformerEncoderLayer(d_model=64, nhead=8, dim_feedforward=256, dropout=0.1, activation="relu")
 
         self.conv1x1_l1 = ConvNormLayer(512, 1024, kernel_size=1, stride=1)
         self.conv1x1_l2 = ConvNormLayer(256, 1024, kernel_size=1, stride=1)
@@ -246,29 +233,48 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def _forward_impl(self, x: Tensor) -> Tensor:
+        print(f"ResNet input shape: {x.shape}")
+        
         feature_a = self.layer1(x)
+        print(f"ResNet layer1 output shape: {feature_a.shape}")
+        
         feature_b = self.layer2(feature_a)
+        print(f"ResNet layer2 output shape: {feature_b.shape}")
+        
         feature_c = self.layer3(feature_b)
+        print(f"ResNet layer3 output shape: {feature_c.shape}")
 
-        # AIFI 레이어를 각각의 특징 맵에 적용
         l1 = self.aifi_layer1(feature_a)
+        print(f"ResNet AIFI layer1 output shape: {l1.shape}")
+        
         l2 = self.aifi_layer2(feature_b)
+        print(f"ResNet AIFI layer2 output shape: {l2.shape}")
+        
         l3 = self.aifi_layer3(feature_c)
+        print(f"ResNet AIFI layer3 output shape: {l3.shape}")
 
-        # 각 레이어의 출력을 1024 채널로 변환
         l1 = self.conv1x1_l1(l1)
+        print(f"ResNet conv1x1_l1 output shape: {l1.shape}")
+        
         l2 = self.conv1x1_l2(l2)
+        print(f"ResNet conv1x1_l2 output shape: {l2.shape}")
+        
         l3 = self.conv1x1_l3(l3)
+        print(f"ResNet conv1x1_l3 output shape: {l3.shape}")
 
         feature = torch.cat([l1, l2, l3], dim=1)
+        print(f"ResNet concatenated feature shape: {feature.shape}")
+        
         feature = self.conv1(feature)
+        print(f"ResNet final conv1 output shape: {feature.shape}")
+        
         output = self.ccff_layer(feature)
+        print(f"ResNet final output shape: {output.shape}")
 
         return output
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
-
 
 
 
