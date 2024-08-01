@@ -414,6 +414,14 @@ class BN_layer(nn.Module):
         self.bn4 = norm_layer(512 * block.expansion)
 
         ##DAT ATTN
+        self.feature_dat = DeformableAttention2D(
+                            dim = 256,
+                            downsample_factor = 4,
+                            offset_scale = 2,
+                            offset_kernel_size = 6,
+                            offset_groups = 1
+                        )
+        
         self.dat = DeformableAttention2D(
                             dim = 3072,
                             downsample_factor = 4,
@@ -456,12 +464,17 @@ class BN_layer(nn.Module):
 
     def _forward_impl(self, x: Tensor) -> Tensor:
         #print(f"Input shapes: {[f.shape for f in x]}")
+
         l1 = self.relu(self.bn2(self.conv2(self.relu(self.bn1(self.conv1(x[0]))))))
         #print(f"l1 shape: {l1.shape}")
         l2 = self.relu(self.bn3(self.conv3(x[1])))
+
+        ## dat input add
+        l3 = self.feature_dat(x[0])
         #print(f"l2 shape: {l2.shape}")
-        feature = torch.cat([l1,l2,x[2]],1)
+        feature = torch.cat([l1,l2,l3, x[2]],1)
         #print(f"Concatenated feature shape: {feature.shape}")
+
         feature = self.dat(feature)
         output = self.bn_layer(feature)
         #print(f"Output shape: {output.shape}")

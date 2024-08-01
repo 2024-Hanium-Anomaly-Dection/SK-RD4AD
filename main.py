@@ -71,7 +71,7 @@ def train(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
     test_path = '/home/intern24/mvtec/' + _class_ 
-    ckp_path = '/home/intern24/anomaly_checkpoints/' + 'dat_add_'+_class_+'.pth'
+    ckp_path = '/home/intern24/anomaly_checkpoints/input_add_dat/' + 'input_add_dat_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
