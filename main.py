@@ -108,7 +108,7 @@ def train(_class_):
         logging.info(f'Epoch [{epoch + 1}/{epochs}], Loss: {np.mean(loss_list):.4f}')
         if (epoch + 1) % 10 == 0:
             auroc_px, auroc_sp, aupro_px = evaluation(encoder, bn, decoder, test_dataloader, device)
-            print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(auroc_px, auroc_sp, aupro_px))
+            print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3f}'.format(auroc_px, auroc_sp, aupro_px))
             logging.info(f'Pixel Auroc: {auroc_px:.3f}, Sample Auroc: {auroc_sp:.3f}, Pixel Aupro: {auroc_px:.3f}')
             torch.save({'bn': bn.state_dict(),
                         'decoder': decoder.state_dict()}, ckp_path)
