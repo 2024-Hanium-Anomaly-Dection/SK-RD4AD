@@ -17,6 +17,7 @@ import torch.backends.cudnn as cudnn
 import argparse
 from test import evaluation, visualization, test
 from torch.nn import functional as F
+import logging
 
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -59,7 +60,10 @@ def loss_concat(a, b):
     return loss
 
 def train(_class_):
-    print(_class_)
+    # 로깅 설정
+    logging.basicConfig(filename=f'/home/intern24/anomaly/input_add_dat/AnomalyDetection/output_log/training_log_{_class_}.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.info(f'Training started for class: {_class_}')
+
     epochs = 200
     learning_rate = 0.005
     batch_size =16
@@ -70,8 +74,8 @@ def train(_class_):
 
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
-    test_path = '/home/intern24/mvtec/' + _class_ 
-    ckp_path = '/home/intern24/anomaly_checkpoints/input_add_dat/' + 'input_add_dat_'+_class_+'.pth'
+    test_path = '/home/intern24/mvtec/' + _class_  
+    ckp_path = '/home/intern24/anomaly_checkpoints/input_add_dat/' + 'input_dat_add_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -101,9 +105,11 @@ def train(_class_):
             optimizer.step()
             loss_list.append(loss.item())
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, epochs, np.mean(loss_list)))
+        logging.info(f'Epoch [{epoch + 1}/{epochs}], Loss: {np.mean(loss_list):.4f}')
         if (epoch + 1) % 10 == 0:
             auroc_px, auroc_sp, aupro_px = evaluation(encoder, bn, decoder, test_dataloader, device)
             print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3}'.format(auroc_px, auroc_sp, aupro_px))
+            logging.info(f'Pixel Auroc: {auroc_px:.3f}, Sample Auroc: {auroc_sp:.3f}, Pixel Aupro: {auroc_px:.3f}')
             torch.save({'bn': bn.state_dict(),
                         'decoder': decoder.state_dict()}, ckp_path)
     return auroc_px, auroc_sp, aupro_px
