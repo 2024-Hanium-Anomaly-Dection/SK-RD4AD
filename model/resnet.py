@@ -423,7 +423,7 @@ class BN_layer(nn.Module):
                         )
         
         self.dat = DeformableAttention2D(
-                            dim = 3072,
+                            dim = 4096,
                             downsample_factor = 4,
                             offset_scale = 2,
                             offset_kernel_size = 6,
@@ -446,13 +446,19 @@ class BN_layer(nn.Module):
             self.dilation *= stride
             stride = 1
         if stride != 1 or self.inplanes != planes * block.expansion:
+            # downsample = nn.Sequential(
+            #     conv1x1(self.inplanes*3, planes * block.expansion, stride),
+            #     norm_layer(planes * block.expansion),
+            # )
             downsample = nn.Sequential(
-                conv1x1(self.inplanes*3, planes * block.expansion, stride),
+                conv1x1(self.inplanes*4, planes * block.expansion, stride),
                 norm_layer(planes * block.expansion),
             )
 
         layers = []
-        layers.append(block(self.inplanes*3, planes, stride, downsample, self.groups,
+        # layers.append(block(self.inplanes*3, planes, stride, downsample, self.groups,
+        #                     self.base_width, previous_dilation, norm_layer))
+        layers.append(block(self.inplanes*4, planes, stride, downsample, self.groups,
                             self.base_width, previous_dilation, norm_layer))
         self.inplanes = planes * block.expansion
         for _ in range(1, blocks):
@@ -470,12 +476,14 @@ class BN_layer(nn.Module):
         l2 = self.relu(self.bn3(self.conv3(x[1])))
 
         ## dat input add
-        l3 = self.feature_dat(x[0])
+        l3 = self.conv2(self.conv1(self.feature_dat(x[0])))
+
         #print(f"l2 shape: {l2.shape}")
-        feature = torch.cat([l1,l2,l3, x[2]],1)
+        feature = torch.cat([l1, l2, x[2],l3],1)       
         #print(f"Concatenated feature shape: {feature.shape}")
 
         feature = self.dat(feature)
+        #print(feature.size())
         output = self.bn_layer(feature)
         #print(f"Output shape: {output.shape}")
         #x = self.avgpool(feature_d)

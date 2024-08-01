@@ -69,7 +69,7 @@ def train(_class_):
     batch_size =16
     image_size = 256
         
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = "cpu" #'cuda' if torch.cuda.is_available() else 'cpu'
     print(device)
 
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
