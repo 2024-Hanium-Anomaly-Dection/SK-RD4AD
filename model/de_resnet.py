@@ -133,30 +133,24 @@ class Bottleneck(nn.Module):
         self.stride = stride
 
     def forward(self, x: Tensor) -> Tensor:
-        #print(f"Bottleneck input shape: {x.shape}")
         identity = x
 
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
-        #print(f"Bottleneck conv1 output shape: {out.shape}")
 
         out = self.conv2(out)
         out = self.bn2(out)
         out = self.relu(out)
-        #print(f"Bottleneck conv2 output shape: {out.shape}")
 
         out = self.conv3(out)
         out = self.bn3(out)
-        #print(f"Bottleneck conv3 output shape: {out.shape}")
 
         if self.upsample is not None:
             identity = self.upsample(x)
-            #print(f"Bottleneck upsample output shape: {identity.shape}")
 
         out += identity
         out = self.relu(out)
-        #print(f"Bottleneck final output shape: {out.shape}")
 
         return out
 
@@ -248,16 +242,20 @@ class ResNet(nn.Module):
         return nn.Sequential(*layers)
 
     def _forward_impl(self, x: Tensor) -> Tensor:
-        #print(f"ResNet input shape: {x.shape}")
+        # See note [TorchScript super()]
+        #x = self.conv1(x)
+        #x = self.bn1(x)
+        #x = self.relu(x)
+        #x = self.maxpool(x)
 
         feature_a = self.layer1(x)  # 512*8*8->256*16*16
-        #print(f"ResNet layer1 output shape: {feature_a.shape}")
-
         feature_b = self.layer2(feature_a)  # 256*16*16->128*32*32
-        #print(f"ResNet layer2 output shape: {feature_b.shape}")
-
         feature_c = self.layer3(feature_b)  # 128*32*32->64*64*64
-        #print(f"ResNet layer3 output shape: {feature_c.shape}")
+        #feature_d = self.layer4(feature_c)  # 64*64*64->128*32*32
+
+        #x = self.avgpool(feature_d)
+        #x = torch.flatten(x, 1)
+        #x = self.fc(x)
 
         return [feature_c, feature_b, feature_a]
 

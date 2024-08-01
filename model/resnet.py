@@ -414,6 +414,15 @@ class BN_layer(nn.Module):
         self.bn4 = norm_layer(512 * block.expansion)
 
         ##DAT ATTN
+
+        self.feature_dat = DeformableAttention2D(
+                            dim = 1024,
+                            downsample_factor = 4,
+                            offset_scale = 2,
+                            offset_kernel_size = 6,
+                            offset_groups = 1
+                        )
+
         self.dat = DeformableAttention2D(
                             dim = 3072,
                             downsample_factor = 4,
@@ -458,10 +467,18 @@ class BN_layer(nn.Module):
         #print(f"Input shapes: {[f.shape for f in x]}")
         l1 = self.relu(self.bn2(self.conv2(self.relu(self.bn1(self.conv1(x[0]))))))
         #print(f"l1 shape: {l1.shape}")
+        l1 = self.feature_dat(l1)
+
         l2 = self.relu(self.bn3(self.conv3(x[1])))
+        l2 = self.feature_dat(l2)
         #print(f"l2 shape: {l2.shape}")
+
+        x[2] = self.feature_dat(x[2])
+        
         feature = torch.cat([l1,l2,x[2]],1)
         #print(f"Concatenated feature shape: {feature.shape}")
+        
+        ##최종 dat 통과##
         feature = self.dat(feature)
         output = self.bn_layer(feature)
         #print(f"Output shape: {output.shape}")
