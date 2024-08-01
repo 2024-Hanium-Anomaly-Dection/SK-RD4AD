@@ -1,1 +1,0 @@
-2024-08-01 16:04:49,269 - Training started for class: carpet
