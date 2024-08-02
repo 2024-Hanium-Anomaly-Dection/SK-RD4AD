@@ -1,0 +1,52 @@
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from torchvision.models import wide_resnet50_2
+from torchvision import transforms
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader
+
+def train():
+    # 데이터 변환
+    data_transform = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor()
+    ])
+
+    # 데이터셋 준비
+    train_data = ImageFolder(root='/content/drive/MyDrive/vad/train', transform=data_transform)  # 경로 수정
+    train_loader = DataLoader(train_data, batch_size=16, shuffle=True)
+
+    # 모델 로드
+    model = wide_resnet50_2(pretrained=True)
+    model.fc = nn.Linear(model.fc.in_features, len(train_data.classes))  # 클래스 수 맞게 수정
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    model = model.to(device)
+
+    # 손실 함수 및 옵티마이저 설정
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
+
+    # 훈련 루프
+    epochs = 5  # 에포크 수 설정
+    for epoch in range(epochs):
+        model.train()
+        running_loss = 0.0
+        for inputs, labels in train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
+            optimizer.zero_grad()
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+            running_loss += loss.item() * inputs.size(0)
+        
+        epoch_loss = running_loss / len(train_loader.dataset)
+        print(f'Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}')
+
+        # 주기적으로 모델 저장
+        if (epoch + 1) % 1 == 0:
+            torch.save(model.state_dict(), f'/content/drive/MyDrive/checkpoints/model_epoch_{epoch+1}.pth')
+
+train()
