@@ -36,8 +36,6 @@ def loss_fucntion(a, b):
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
     for item in range(len(a)):
-        #print(a[item].shape)
-        #print(b[item].shape)
         #loss += 0.1*mse_loss(a[item], b[item])
         loss += torch.mean(1-cos_loss(a[item].view(a[item].shape[0],-1),
                                       b[item].view(b[item].shape[0],-1)))
@@ -69,7 +67,7 @@ def train(_class_):
     batch_size =16
     image_size = 256
         
-    device = "cpu" #'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(device)
 
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
