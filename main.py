@@ -61,7 +61,7 @@ def loss_concat(a, b):
 
 def train(_class_):
     # 로깅 설정
-    logging.basicConfig(filename=f'/home/intern24/anomaly/AnomalyDetection/output_log/training_log_{_class_}.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.basicConfig(filename=f'/home/intern24/anomaly/AnomalyDetection/output_log/training{_class_}.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     logging.info(f'Training started for class: {_class_}')
 
     epochs = 200
@@ -75,7 +75,7 @@ def train(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
     test_path = '/home/intern24/mvtec/' + _class_  
-    ckp_path = '/home/intern24/anomaly_checkpoints/dat_before_oce/' + 'dat_before_oce_'+_class_+'.pth'
+    ckp_path = '/home/intern24/anomaly_checkpoints/dat_oce/' + 'dat_after_oce_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)

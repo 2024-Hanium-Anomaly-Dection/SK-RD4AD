@@ -415,7 +415,7 @@ class BN_layer(nn.Module):
 
         ##DAT ATTN
         self.dat = DeformableAttention2D(
-                            dim = 3072,
+                            dim = 2048,
                             downsample_factor = 4,
                             offset_scale = 2,
                             offset_kernel_size = 6,
@@ -462,8 +462,8 @@ class BN_layer(nn.Module):
         #print(f"l2 shape: {l2.shape}")
         feature = torch.cat([l1,l2,x[2]],1)
         #print(f"Concatenated feature shape: {feature.shape}")
-        feature = self.dat(feature)
         output = self.bn_layer(feature)
+        output = self.dat(output)
         #print(f"Output shape: {output.shape}")
         #x = self.avgpool(feature_d)
         #x = torch.flatten(x, 1)
