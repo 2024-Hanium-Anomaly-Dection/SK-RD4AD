@@ -189,6 +189,16 @@ class ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(512 * block.expansion, num_classes)
 
+        
+        ## DAT 
+        self.dat = DeformableAttention2D(
+                            dim = 1024,
+                            downsample_factor = 4,
+                            offset_scale = 2,
+                            offset_kernel_size = 6,
+                            offset_groups = 1
+                        )
+
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
                 nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
@@ -241,10 +251,12 @@ class ResNet(nn.Module):
         feature_a = self.layer1(x)
         feature_b = self.layer2(feature_a)
         feature_c = self.layer3(feature_b)
-        feature_d = self.layer4(feature_c)
 
+        #DAT
+        feature_d = self.dat(feature_c)
 
-        return [feature_a, feature_b, feature_c]
+        #print(f'ResNet size: {feature_a.size()} {feature_b.size()} {feature_c.size()} {feature_d.size()}')
+        return [feature_a, feature_b, feature_c, feature_d]
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
@@ -265,7 +277,7 @@ def _resnet(
         #for k,v in list(state_dict.items()):
         #    if 'layer4' in k or 'fc' in k:
         #        state_dict.pop(k)
-        model.load_state_dict(state_dict)
+        model.load_state_dict(state_dict, strict=False)
     return model
 
 class AttnBasicBlock(nn.Module):
@@ -413,22 +425,6 @@ class BN_layer(nn.Module):
         self.conv4 = conv1x1(1024 * block.expansion, 512 * block.expansion, 1)
         self.bn4 = norm_layer(512 * block.expansion)
 
-        ##DAT ATTN
-        self.feature_dat = DeformableAttention2D(
-                            dim = 256,
-                            downsample_factor = 4,
-                            offset_scale = 2,
-                            offset_kernel_size = 6,
-                            offset_groups = 1
-                        )
-        
-        self.dat = DeformableAttention2D(
-                            dim = 4096,
-                            downsample_factor = 4,
-                            offset_scale = 2,
-                            offset_kernel_size = 6,
-                            offset_groups = 1
-                        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -472,24 +468,17 @@ class BN_layer(nn.Module):
         #print(f"Input shapes: {[f.shape for f in x]}")
 
         l1 = self.relu(self.bn2(self.conv2(self.relu(self.bn1(self.conv1(x[0]))))))
-        #print(f"l1 shape: {l1.shape}")
         l2 = self.relu(self.bn3(self.conv3(x[1])))
 
-        ## dat input add
-        l3 = self.conv2(self.conv1(self.feature_dat(x[0])))
+        #x[3] : dat input
+        feature = torch.cat([l1, l2, x[2],x[3]],1)       
 
-        #print(f"l2 shape: {l2.shape}")
-        feature = torch.cat([l1, l2, x[2],l3],1)       
-        #print(f"Concatenated feature shape: {feature.shape}")
-
-        feature = self.dat(feature)
-        #print(feature.size())
         output = self.bn_layer(feature)
         #print(f"Output shape: {output.shape}")
         #x = self.avgpool(feature_d)
         #x = torch.flatten(x, 1)
         #x = self.fc(x)
-
+        #print(f'BN_layer size : {output.shape}')
         return output.contiguous()
 
     def forward(self, x: Tensor) -> Tensor:
