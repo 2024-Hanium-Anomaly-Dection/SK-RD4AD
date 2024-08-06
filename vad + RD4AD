@@ -1,0 +1,480 @@
+Epoch 1/200: 100%|██████████| 188/188 [02:54<00:00,  1.08batch/s, loss=0.48]
+Epoch 1/200, Average Loss: 0.6649
+Epoch 2/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.919]
+Epoch 2/200, Average Loss: 0.6454
+Epoch 3/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.674]
+Epoch 3/200, Average Loss: 0.6526
+Epoch 4/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.683]
+Epoch 4/200, Average Loss: 0.6305
+Epoch 5/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.514]
+Epoch 5/200, Average Loss: 0.6188
+Epoch 6/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.581]
+Epoch 6/200, Average Loss: 0.5974
+Epoch 7/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.522]
+Epoch 7/200, Average Loss: 0.5760
+Epoch 8/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.24]
+Epoch 8/200, Average Loss: 0.5578
+Epoch 9/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.61]
+Epoch 9/200, Average Loss: 0.5340
+Epoch 10/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.459]
+Epoch 10/200, Average Loss: 0.5194
+Epoch 10/200, AUROC Score: 0.6991
+Epoch 10/200, Pixel AUROC Score: 0.6991
+Epoch 10/200, Sample AUROC Score: 0.6991
+Epoch 10/200, Pixel AUPR Score: 0.6991
+Epoch 11/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.382]
+Epoch 11/200, Average Loss: 0.5128
+Epoch 12/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.376]
+Epoch 12/200, Average Loss: 0.5141
+Epoch 13/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.724]
+Epoch 13/200, Average Loss: 0.4940
+Epoch 14/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.429]
+Epoch 14/200, Average Loss: 0.4926
+Epoch 15/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.184]
+Epoch 15/200, Average Loss: 0.4767
+Epoch 16/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.575]
+Epoch 16/200, Average Loss: 0.4625
+Epoch 17/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.48]
+Epoch 17/200, Average Loss: 0.4555
+Epoch 18/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.25]
+Epoch 18/200, Average Loss: 0.4492
+Epoch 19/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.296]
+Epoch 19/200, Average Loss: 0.4410
+Epoch 20/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.798]
+Epoch 20/200, Average Loss: 0.4170
+Epoch 20/200, AUROC Score: 0.8817
+Epoch 20/200, Pixel AUROC Score: 0.8817
+Epoch 20/200, Sample AUROC Score: 0.8817
+Epoch 20/200, Pixel AUPR Score: 0.8817
+Epoch 21/200: 100%|██████████| 188/188 [01:06<00:00,  2.81batch/s, loss=0.331]
+Epoch 21/200, Average Loss: 0.4038
+Epoch 22/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.633]
+Epoch 22/200, Average Loss: 0.3933
+Epoch 23/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.403]
+Epoch 23/200, Average Loss: 0.3854
+Epoch 24/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.172]
+Epoch 24/200, Average Loss: 0.3719
+Epoch 25/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.284]
+Epoch 25/200, Average Loss: 0.3557
+Epoch 26/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.177]
+Epoch 26/200, Average Loss: 0.3664
+Epoch 27/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.308]
+Epoch 27/200, Average Loss: 0.3338
+Epoch 28/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.166]
+Epoch 28/200, Average Loss: 0.3172
+Epoch 29/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.472]
+Epoch 29/200, Average Loss: 0.3201
+Epoch 30/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.381]
+Epoch 30/200, Average Loss: 0.2887
+Epoch 30/200, AUROC Score: 0.9331
+Epoch 30/200, Pixel AUROC Score: 0.9331
+Epoch 30/200, Sample AUROC Score: 0.9331
+Epoch 30/200, Pixel AUPR Score: 0.9331
+Epoch 31/200: 100%|██████████| 188/188 [01:06<00:00,  2.82batch/s, loss=0.212]
+Epoch 31/200, Average Loss: 0.2713
+Epoch 32/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.168]
+Epoch 32/200, Average Loss: 0.2449
+Epoch 33/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.401]
+Epoch 33/200, Average Loss: 0.2521
+Epoch 34/200: 100%|██████████| 188/188 [01:06<00:00,  2.81batch/s, loss=0.0213]
+Epoch 34/200, Average Loss: 0.2274
+Epoch 35/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.0314]
+Epoch 35/200, Average Loss: 0.1827
+Epoch 36/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.547]
+Epoch 36/200, Average Loss: 0.2018
+Epoch 37/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.0111]
+Epoch 37/200, Average Loss: 0.1683
+Epoch 38/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.0882]
+Epoch 38/200, Average Loss: 0.1402
+Epoch 39/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.575]
+Epoch 39/200, Average Loss: 0.1606
+Epoch 40/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.0199]
+Epoch 40/200, Average Loss: 0.1500
+Epoch 40/200, AUROC Score: 0.9950
+Epoch 40/200, Pixel AUROC Score: 0.9950
+Epoch 40/200, Sample AUROC Score: 0.9950
+Epoch 40/200, Pixel AUPR Score: 0.9950
+Epoch 41/200: 100%|██████████| 188/188 [01:06<00:00,  2.82batch/s, loss=0.321]
+Epoch 41/200, Average Loss: 0.1239
+Epoch 42/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.114]
+Epoch 42/200, Average Loss: 0.1232
+Epoch 43/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.0763]
+Epoch 43/200, Average Loss: 0.1193
+Epoch 44/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.0609]
+Epoch 44/200, Average Loss: 0.0760
+Epoch 45/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.0506]
+Epoch 45/200, Average Loss: 0.0889
+Epoch 46/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.00416]
+Epoch 46/200, Average Loss: 0.0663
+Epoch 47/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.179]
+Epoch 47/200, Average Loss: 0.0803
+Epoch 48/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.00458]
+Epoch 48/200, Average Loss: 0.0687
+Epoch 49/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.0133]
+Epoch 49/200, Average Loss: 0.0837
+Epoch 50/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.005]
+Epoch 50/200, Average Loss: 0.0658
+Epoch 50/200, AUROC Score: 0.9998
+Epoch 50/200, Pixel AUROC Score: 0.9998
+Epoch 50/200, Sample AUROC Score: 0.9998
+Epoch 50/200, Pixel AUPR Score: 0.9998
+Epoch 51/200: 100%|██████████| 188/188 [01:06<00:00,  2.81batch/s, loss=0.000241]
+Epoch 51/200, Average Loss: 0.0267
+Epoch 52/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.0167]
+Epoch 52/200, Average Loss: 0.0225
+Epoch 53/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.425]
+Epoch 53/200, Average Loss: 0.1219
+Epoch 54/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.00287]
+Epoch 54/200, Average Loss: 0.0600
+Epoch 55/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.0218]
+Epoch 55/200, Average Loss: 0.0500
+Epoch 56/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.252]
+Epoch 56/200, Average Loss: 0.0386
+Epoch 57/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.6]
+Epoch 57/200, Average Loss: 0.0847
+Epoch 58/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00552]
+Epoch 58/200, Average Loss: 0.0483
+Epoch 59/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.000193]
+Epoch 59/200, Average Loss: 0.0201
+Epoch 60/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.00574]
+Epoch 60/200, Average Loss: 0.0665
+Epoch 60/200, AUROC Score: 0.9986
+Epoch 60/200, Pixel AUROC Score: 0.9986
+Epoch 60/200, Sample AUROC Score: 0.9986
+Epoch 60/200, Pixel AUPR Score: 0.9986
+Epoch 61/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.00176]
+Epoch 61/200, Average Loss: 0.0576
+Epoch 62/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.352]
+Epoch 62/200, Average Loss: 0.0534
+Epoch 63/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.00398]
+Epoch 63/200, Average Loss: 0.0405
+Epoch 64/200: 100%|██████████| 188/188 [01:06<00:00,  2.82batch/s, loss=0.00327]
+Epoch 64/200, Average Loss: 0.0400
+Epoch 65/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.00238]
+Epoch 65/200, Average Loss: 0.0513
+Epoch 66/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.0114]
+Epoch 66/200, Average Loss: 0.0410
+Epoch 67/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00164]
+Epoch 67/200, Average Loss: 0.0562
+Epoch 68/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.181]
+Epoch 68/200, Average Loss: 0.0204
+Epoch 69/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.000884]
+Epoch 69/200, Average Loss: 0.0057
+Epoch 70/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0176]
+Epoch 70/200, Average Loss: 0.0073
+Epoch 70/200, AUROC Score: 0.9947
+Epoch 70/200, Pixel AUROC Score: 0.9947
+Epoch 70/200, Sample AUROC Score: 0.9947
+Epoch 70/200, Pixel AUPR Score: 0.9947
+Epoch 71/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.0487]
+Epoch 71/200, Average Loss: 0.0925
+Epoch 72/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.000164]
+Epoch 72/200, Average Loss: 0.0243
+Epoch 73/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00134]
+Epoch 73/200, Average Loss: 0.0507
+Epoch 74/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00564]
+Epoch 74/200, Average Loss: 0.0344
+Epoch 75/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.06]
+Epoch 75/200, Average Loss: 0.0141
+Epoch 76/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0348]
+Epoch 76/200, Average Loss: 0.0653
+Epoch 77/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.254]
+Epoch 77/200, Average Loss: 0.0447
+Epoch 78/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00146]
+Epoch 78/200, Average Loss: 0.0382
+Epoch 79/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.00013]
+Epoch 79/200, Average Loss: 0.0087
+Epoch 80/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.00515]
+Epoch 80/200, Average Loss: 0.0057
+Epoch 80/200, AUROC Score: 1.0000
+Epoch 80/200, Pixel AUROC Score: 1.0000
+Epoch 80/200, Sample AUROC Score: 1.0000
+Epoch 80/200, Pixel AUPR Score: 1.0000
+Epoch 81/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=2.03e-5]
+Epoch 81/200, Average Loss: 0.0008
+Epoch 82/200: 100%|██████████| 188/188 [01:05<00:00,  2.85batch/s, loss=0.000432]
+Epoch 82/200, Average Loss: 0.0035
+Epoch 83/200: 100%|██████████| 188/188 [01:06<00:00,  2.85batch/s, loss=0.000289]
+Epoch 83/200, Average Loss: 0.0010
+Epoch 84/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0231]
+Epoch 84/200, Average Loss: 0.0005
+Epoch 85/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0853]
+Epoch 85/200, Average Loss: 0.1746
+Epoch 86/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0316]
+Epoch 86/200, Average Loss: 0.0662
+Epoch 87/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000883]
+Epoch 87/200, Average Loss: 0.0316
+Epoch 88/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0158]
+Epoch 88/200, Average Loss: 0.0561
+Epoch 89/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=1.05]
+Epoch 89/200, Average Loss: 0.0702
+Epoch 90/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0031]
+Epoch 90/200, Average Loss: 0.0605
+Epoch 90/200, AUROC Score: 0.9998
+Epoch 90/200, Pixel AUROC Score: 0.9998
+Epoch 90/200, Sample AUROC Score: 0.9998
+Epoch 90/200, Pixel AUPR Score: 0.9998
+Epoch 91/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.00687]
+Epoch 91/200, Average Loss: 0.0221
+Epoch 92/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00166]
+Epoch 92/200, Average Loss: 0.0192
+Epoch 93/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0181]
+Epoch 93/200, Average Loss: 0.0116
+Epoch 94/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0216]
+Epoch 94/200, Average Loss: 0.0709
+Epoch 95/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00144]
+Epoch 95/200, Average Loss: 0.0400
+Epoch 96/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.011]
+Epoch 96/200, Average Loss: 0.0193
+Epoch 97/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0117]
+Epoch 97/200, Average Loss: 0.0360
+Epoch 98/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000219]
+Epoch 98/200, Average Loss: 0.0340
+Epoch 99/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0107]
+Epoch 99/200, Average Loss: 0.0294
+Epoch 100/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0276]
+Epoch 100/200, Average Loss: 0.0065
+Epoch 100/200, AUROC Score: 1.0000
+Epoch 100/200, Pixel AUROC Score: 1.0000
+Epoch 100/200, Sample AUROC Score: 1.0000
+Epoch 100/200, Pixel AUPR Score: 1.0000
+Epoch 101/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.0785]
+Epoch 101/200, Average Loss: 0.0244
+Epoch 102/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000134]
+Epoch 102/200, Average Loss: 0.0457
+Epoch 103/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0102]
+Epoch 103/200, Average Loss: 0.0303
+Epoch 104/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0187]
+Epoch 104/200, Average Loss: 0.0360
+Epoch 105/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00132]
+Epoch 105/200, Average Loss: 0.0137
+Epoch 106/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000124]
+Epoch 106/200, Average Loss: 0.0018
+Epoch 107/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=3.76e-6]
+Epoch 107/200, Average Loss: 0.0011
+Epoch 108/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000114]
+Epoch 108/200, Average Loss: 0.0003
+Epoch 109/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=2.08e-5]
+Epoch 109/200, Average Loss: 0.0003
+Epoch 110/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=1.42e-6]
+Epoch 110/200, Average Loss: 0.0002
+Epoch 110/200, AUROC Score: 1.0000
+Epoch 110/200, Pixel AUROC Score: 1.0000
+Epoch 110/200, Sample AUROC Score: 1.0000
+Epoch 110/200, Pixel AUPR Score: 1.0000
+Epoch 111/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=8.45e-5]
+Epoch 111/200, Average Loss: 0.0002
+Epoch 112/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0376]
+Epoch 112/200, Average Loss: 0.1084
+Epoch 113/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00275]
+Epoch 113/200, Average Loss: 0.0599
+Epoch 114/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000803]
+Epoch 114/200, Average Loss: 0.0240
+Epoch 115/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00251]
+Epoch 115/200, Average Loss: 0.0166
+Epoch 116/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0692]
+Epoch 116/200, Average Loss: 0.0083
+Epoch 117/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000168]
+Epoch 117/200, Average Loss: 0.0069
+Epoch 118/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.000317]
+Epoch 118/200, Average Loss: 0.0365
+Epoch 119/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=1.05]
+Epoch 119/200, Average Loss: 0.0875
+Epoch 120/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000536]
+Epoch 120/200, Average Loss: 0.0418
+Epoch 120/200, AUROC Score: 1.0000
+Epoch 120/200, Pixel AUROC Score: 1.0000
+Epoch 120/200, Sample AUROC Score: 1.0000
+Epoch 120/200, Pixel AUPR Score: 1.0000
+Epoch 121/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.000891]
+Epoch 121/200, Average Loss: 0.0034
+Epoch 122/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00739]
+Epoch 122/200, Average Loss: 0.0129
+Epoch 123/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.000729]
+Epoch 123/200, Average Loss: 0.0073
+Epoch 124/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=2.47e-6]
+Epoch 124/200, Average Loss: 0.0013
+Epoch 125/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.000265]
+Epoch 125/200, Average Loss: 0.0009
+Epoch 126/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=4.16e-6]
+Epoch 126/200, Average Loss: 0.0016
+Epoch 127/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00124]
+Epoch 127/200, Average Loss: 0.0006
+Epoch 128/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=1.34e-7]
+Epoch 128/200, Average Loss: 0.0003
+Epoch 129/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000512]
+Epoch 129/200, Average Loss: 0.0003
+Epoch 130/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00119]
+Epoch 130/200, Average Loss: 0.0005
+Epoch 130/200, AUROC Score: 1.0000
+Epoch 130/200, Pixel AUROC Score: 1.0000
+Epoch 130/200, Sample AUROC Score: 1.0000
+Epoch 130/200, Pixel AUPR Score: 1.0000
+Epoch 131/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.0396]
+Epoch 131/200, Average Loss: 0.1747
+Epoch 132/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0034]
+Epoch 132/200, Average Loss: 0.0543
+Epoch 133/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00419]
+Epoch 133/200, Average Loss: 0.0081
+Epoch 134/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00281]
+Epoch 134/200, Average Loss: 0.0115
+Epoch 135/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000282]
+Epoch 135/200, Average Loss: 0.0340
+Epoch 136/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000117]
+Epoch 136/200, Average Loss: 0.0225
+Epoch 137/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0277]
+Epoch 137/200, Average Loss: 0.0248
+Epoch 138/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00119]
+Epoch 138/200, Average Loss: 0.0559
+Epoch 139/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=9.49e-5]
+Epoch 139/200, Average Loss: 0.0054
+Epoch 140/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=1.5e-5]
+Epoch 140/200, Average Loss: 0.0010
+Epoch 140/200, AUROC Score: 1.0000
+Epoch 140/200, Pixel AUROC Score: 1.0000
+Epoch 140/200, Sample AUROC Score: 1.0000
+Epoch 140/200, Pixel AUPR Score: 1.0000
+Epoch 141/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=9.83e-5]
+Epoch 141/200, Average Loss: 0.0051
+Epoch 142/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00355]
+Epoch 142/200, Average Loss: 0.0216
+Epoch 143/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00251]
+Epoch 143/200, Average Loss: 0.0508
+Epoch 144/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000899]
+Epoch 144/200, Average Loss: 0.0325
+Epoch 145/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00064]
+Epoch 145/200, Average Loss: 0.0061
+Epoch 146/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000972]
+Epoch 146/200, Average Loss: 0.0012
+Epoch 147/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=5.88e-5]
+Epoch 147/200, Average Loss: 0.0005
+Epoch 148/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.000564]
+Epoch 148/200, Average Loss: 0.0010
+Epoch 149/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000206]
+Epoch 149/200, Average Loss: 0.0003
+Epoch 150/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=5.61e-5]
+Epoch 150/200, Average Loss: 0.0004
+Epoch 150/200, AUROC Score: 1.0000
+Epoch 150/200, Pixel AUROC Score: 1.0000
+Epoch 150/200, Sample AUROC Score: 1.0000
+Epoch 150/200, Pixel AUPR Score: 1.0000
+Epoch 151/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0177]
+Epoch 151/200, Average Loss: 0.0002
+Epoch 152/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=4.35e-6]
+Epoch 152/200, Average Loss: 0.0002
+Epoch 153/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=2.33e-5]
+Epoch 153/200, Average Loss: 0.0001
+Epoch 154/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=6.24e-5]
+Epoch 154/200, Average Loss: 0.0001
+Epoch 155/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=1.01e-6]
+Epoch 155/200, Average Loss: 0.0000
+Epoch 156/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=3.56e-5]
+Epoch 156/200, Average Loss: 0.0000
+Epoch 157/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=1.09e-6]
+Epoch 157/200, Average Loss: 0.0000
+Epoch 158/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=5.12e-5]
+Epoch 158/200, Average Loss: 0.0000
+Epoch 159/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=7.85e-6]
+Epoch 159/200, Average Loss: 0.0000
+Epoch 160/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.734]
+Epoch 160/200, Average Loss: 0.0437
+Epoch 160/200, AUROC Score: 0.6977
+Epoch 160/200, Pixel AUROC Score: 0.6977
+Epoch 160/200, Sample AUROC Score: 0.6977
+Epoch 160/200, Pixel AUPR Score: 0.6977
+Epoch 161/200: 100%|██████████| 188/188 [01:06<00:00,  2.84batch/s, loss=0.00286]
+Epoch 161/200, Average Loss: 0.1610
+Epoch 162/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00309]
+Epoch 162/200, Average Loss: 0.0369
+Epoch 163/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.108]
+Epoch 163/200, Average Loss: 0.0181
+Epoch 164/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000311]
+Epoch 164/200, Average Loss: 0.0076
+Epoch 165/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=8.49e-6]
+Epoch 165/200, Average Loss: 0.0011
+Epoch 166/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000912]
+Epoch 166/200, Average Loss: 0.0006
+Epoch 167/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=3.5e-5]
+Epoch 167/200, Average Loss: 0.0010
+Epoch 168/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=6e-5]
+Epoch 168/200, Average Loss: 0.0062
+Epoch 169/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00614]
+Epoch 169/200, Average Loss: 0.0917
+Epoch 170/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.00494]
+Epoch 170/200, Average Loss: 0.0144
+Epoch 170/200, AUROC Score: 1.0000
+Epoch 170/200, Pixel AUROC Score: 1.0000
+Epoch 170/200, Sample AUROC Score: 1.0000
+Epoch 170/200, Pixel AUPR Score: 1.0000
+Epoch 171/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.000229]
+Epoch 171/200, Average Loss: 0.0047
+Epoch 172/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.0421]
+Epoch 172/200, Average Loss: 0.0016
+Epoch 173/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.000661]
+Epoch 173/200, Average Loss: 0.0006
+Epoch 174/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.000153]
+Epoch 174/200, Average Loss: 0.0003
+Epoch 175/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=5.18e-5]
+Epoch 175/200, Average Loss: 0.0002
+Epoch 176/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=2.99e-5]
+Epoch 176/200, Average Loss: 0.0002
+Epoch 177/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=3.26e-5]
+Epoch 177/200, Average Loss: 0.0001
+Epoch 178/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=7.69e-6]
+Epoch 178/200, Average Loss: 0.0001
+Epoch 179/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=2.73e-5]
+Epoch 179/200, Average Loss: 0.0001
+Epoch 180/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=4.53e-6]
+Epoch 180/200, Average Loss: 0.0001
+Epoch 180/200, AUROC Score: 1.0000
+Epoch 180/200, Pixel AUROC Score: 1.0000
+Epoch 180/200, Sample AUROC Score: 1.0000
+Epoch 180/200, Pixel AUPR Score: 1.0000
+Epoch 181/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=0.00016]
+Epoch 181/200, Average Loss: 0.0001
+Epoch 182/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0369]
+Epoch 182/200, Average Loss: 0.0007
+Epoch 183/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00887]
+Epoch 183/200, Average Loss: 0.1501
+Epoch 184/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00552]
+Epoch 184/200, Average Loss: 0.0269
+Epoch 185/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=1.87e-5]
+Epoch 185/200, Average Loss: 0.0096
+Epoch 186/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.000311]
+Epoch 186/200, Average Loss: 0.0114
+Epoch 187/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.173]
+Epoch 187/200, Average Loss: 0.0593
+Epoch 188/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.0321]
+Epoch 188/200, Average Loss: 0.0206
+Epoch 189/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00894]
+Epoch 189/200, Average Loss: 0.0104
+Epoch 190/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=0.00063]
+Epoch 190/200, Average Loss: 0.0048
+Epoch 190/200, AUROC Score: 1.0000
+Epoch 190/200, Pixel AUROC Score: 1.0000
+Epoch 190/200, Sample AUROC Score: 1.0000
+Epoch 190/200, Pixel AUPR Score: 1.0000
+Epoch 191/200: 100%|██████████| 188/188 [01:06<00:00,  2.83batch/s, loss=8.68e-5]
+Epoch 191/200, Average Loss: 0.0024
+Epoch 192/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=5.71e-5]
+Epoch 192/200, Average Loss: 0.0010
+Epoch 193/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=2.23e-5]
+Epoch 193/200, Average Loss: 0.0002
+Epoch 194/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=2.88e-6]
+Epoch 194/200, Average Loss: 0.0002
+Epoch 195/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=6.33e-5]
+Epoch 195/200, Average Loss: 0.0001
+Epoch 196/200: 100%|██████████| 188/188 [01:05<00:00,  2.86batch/s, loss=0.014]
+Epoch 196/200, Average Loss: 0.0001
+Epoch 197/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=6.17e-5]
+Epoch 197/200, Average Loss: 0.0001
+Epoch 198/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=5.66e-7]
+Epoch 198/200, Average Loss: 0.0001
+Epoch 199/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=4.73e-5]
+Epoch 199/200, Average Loss: 0.0001
+Epoch 200/200: 100%|██████████| 188/188 [01:05<00:00,  2.87batch/s, loss=1.54e-5]
+Epoch 200/200, Average Loss: 0.0001
+Epoch 200/200, AUROC Score: 1.0000
+Epoch 200/200, Pixel AUROC Score: 1.0000
+Epoch 200/200, Sample AUROC Score: 1.0000
+Epoch 200/200, Pixel AUPR Score: 1.0000
