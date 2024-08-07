@@ -261,6 +261,7 @@ class ResNet(nn.Module):
 
     def _forward_impl(self, x: Tensor) -> Tensor:
         #print(f"ResNet input shape: {x.shape}")
+        
         #print(x.size())
         feature_a = self.layer1(x)  # 512*8*8->256*16*16
         #print(f"ResNet layer1 output shape: {feature_a.shape}")

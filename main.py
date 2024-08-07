@@ -76,10 +76,11 @@ def loss_concat(a, b):
 
 def train(_class_):
     # 로깅 설정
-    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_dat_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     logging.info(f'Training started for class: {_class_}')
 
     epochs = 200
+    dat_lr = 0.001
     learning_rate = 0.005
     batch_size =16
     image_size = 256
@@ -90,7 +91,7 @@ def train(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
     test_path = '/home/intern24/mvtec/' + _class_  
-    ckp_path = '/home/intern24/anomaly_checkpoints/input_add_dat2/' + 'input_dat_add_'+_class_+'.pth'
+    ckp_path = '/home/intern24/anomaly_checkpoints/dat_train/' + 'input_dat_add_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -99,25 +100,38 @@ def train(_class_):
     encoder, bn = wide_resnet50_2(pretrained=True)
     encoder = encoder.to(device)
     bn = bn.to(device)
-    encoder.eval()
+
+    # dat 학습 가능하도록 설정
+    for param in encoder.dat.parameters():
+        param.requires_grad = True
+
+    # encoder.eval()
     decoder = de_wide_resnet50_2(pretrained=False)
     decoder = decoder.to(device)
 
+    #dat 모듈 최적화 진행
+    optimizer_dat = torch.optim.Adam(list(encoder.dat.parameters()), lr=dat_lr, betas=(0.5,0.999))
     optimizer = torch.optim.Adam(list(decoder.parameters())+list(bn.parameters()), lr=learning_rate, betas=(0.5,0.999))
 
 
     for epoch in range(epochs):
+        encoder.dat.train()
+
         bn.train()
         decoder.train()
         loss_list = []
         for img, label in train_dataloader:
             img = img.to(device)
             inputs = encoder(img)
-            outputs = decoder(bn(inputs))#bn(inputs))
+            outputs = decoder(bn(inputs))
             loss = loss_function_cross(inputs, outputs)
+            optimizer_dat.zero_grad()
             optimizer.zero_grad()
             loss.backward()
+
+            optimizer_dat.step()
             optimizer.step()
+
             loss_list.append(loss.item())
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, epochs, np.mean(loss_list)))
         logging.info(f'Epoch [{epoch + 1}/{epochs}], Loss: {np.mean(loss_list):.4f}')
@@ -125,7 +139,9 @@ def train(_class_):
             auroc_px, auroc_sp, aupro_px = evaluation(encoder, bn, decoder, test_dataloader, device)
             print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3f}'.format(auroc_px, auroc_sp, aupro_px))
             logging.info(f'Pixel Auroc: {auroc_px:.3f}, Sample Auroc: {auroc_sp:.3f}, Pixel Aupro: {aupro_px:.3f}')
-            torch.save({'bn': bn.state_dict(),
+            
+            torch.save({'encoder' : encoder.dat.state_dict(),
+                        'bn': bn.state_dict(),
                         'decoder': decoder.state_dict()}, ckp_path)
     return auroc_px, auroc_sp, aupro_px
 
