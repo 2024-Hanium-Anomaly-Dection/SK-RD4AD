@@ -160,7 +160,7 @@ def train(_class_):
                 torch.save({'encoder' : dat.state_dict(),
                             'bn': bn.state_dict(),
                             'decoder': decoder.state_dict()}, ckp_path)
-                print(f'''[Epoch : {epoch} / Class :{i}] => New best score! Model saved with average score: {best_score:.3f}
+                print(f'''[Epoch : {epoch + 1} / Class :{i}] => New best score! Model saved with average score: {best_score:.3f}
                       Pixel Auroc:{auroc_px:.3f}, Sample Auroc{auroc_sp:.3f}, Pixel Aupro{aupro_px:.3f}''')
                 logging.info(f'New best score! Model saved with average score: {best_score:.3f}')
     return auroc_px, auroc_sp, aupro_px
