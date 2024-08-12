@@ -119,6 +119,7 @@ def train(_class_):
     optimizer_dat = torch.optim.Adam(list(dat.parameters()), lr=dat_lr, betas=(0.5,0.999))
     optimizer = torch.optim.Adam(list(decoder.parameters())+list(bn.parameters()), lr=learning_rate, betas=(0.5,0.999))
 
+    best_score = 0  # Best 평균 
 
     for epoch in range(epochs):
         
@@ -150,9 +151,19 @@ def train(_class_):
             print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3f}'.format(auroc_px, auroc_sp, aupro_px))
             logging.info(f'Pixel Auroc: {auroc_px:.3f}, Sample Auroc: {auroc_sp:.3f}, Pixel Aupro: {aupro_px:.3f}')
             
-            torch.save({'encoder' : dat.state_dict(),
-                        'bn': bn.state_dict(),
-                        'decoder': decoder.state_dict()}, ckp_path)
+            # 3개의 평균값 계산
+            current_score = (auroc_px + auroc_sp + aupro_px) / 3
+
+            # 현재 스코어가 최고값을 넘으면 모델을 저장
+            if current_score > best_score:
+                best_score = current_score
+                torch.save({'encoder' : dat.state_dict(),
+                            'bn': bn.state_dict(),
+                            'decoder': decoder.state_dict()}, ckp_path)
+                print(f'''Epoch : {i} => New best score! Model saved with average score: {best_score:.3f} \n
+                      Pixel Auroc:{auroc_px:.3f}, Sample Auroc{auroc_sp:.3f}, Pixel Aupro{aupro_px:.3f}''')
+                logging.info(f'New best score! Model saved with average score: {best_score:.3f}')
+
     return auroc_px, auroc_sp, aupro_px
 
 
@@ -161,7 +172,7 @@ def train(_class_):
 if __name__ == '__main__':
 
     setup_seed(111)
-    item_list = ['carpet' , 'bottle', 'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill',
+    item_list = [ 'carpet' , 'bottle' ,'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill',
                  'transistor', 'metal_nut', 'screw','toothbrush', 'zipper', 'tile', 'wood']
     for i in item_list:
         train(i)
