@@ -1,1 +1,3 @@
-2024-08-12 16:38:07,556 - Training started for class: carpet
+2024-08-12 16:39:54,111 - Training started for class: carpet
+2024-08-12 16:40:24,972 - Epoch [1/200], Loss: 1.3739
+2024-08-12 16:40:50,163 - Epoch [2/200], Loss: 0.8117
