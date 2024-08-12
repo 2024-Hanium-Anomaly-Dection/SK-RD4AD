@@ -94,13 +94,13 @@ class DeformableAttention2D(nn.Module):
     def __init__(
         self,
         *,
-        dim,
+        dim = 1024,
         dim_head = 64,
         heads = 8,
         dropout = 0.,
         downsample_factor = 4,
-        offset_scale = None,
-        offset_groups = None,
+        offset_scale = 2,
+        offset_groups = 1,
         offset_kernel_size = 6,
         group_queries = True,
         group_key_values = True

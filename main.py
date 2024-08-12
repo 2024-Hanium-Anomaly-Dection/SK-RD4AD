@@ -19,6 +19,10 @@ from test import evaluation, visualization, test
 from torch.nn import functional as F
 import logging
 
+from model.dat import DeformableAttention2D
+
+
+
 def count_parameters(model):
     return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
@@ -102,27 +106,33 @@ def train(_class_):
     bn = bn.to(device)
 
     # dat 학습 가능하도록 설정
-    for param in encoder.dat.parameters():
-        param.requires_grad = True
+    # for param in encoder.dat.parameters():
+    #     param.requires_grad = True
 
-    # encoder.eval()
+    encoder.eval()
     decoder = de_wide_resnet50_2(pretrained=False)
     decoder = decoder.to(device)
 
+    dat = DeformableAttention2D().to(device)
+
     #dat 모듈 최적화 진행
-    optimizer_dat = torch.optim.Adam(list(encoder.dat.parameters()), lr=dat_lr, betas=(0.5,0.999))
+    optimizer_dat = torch.optim.Adam(list(dat.parameters()), lr=dat_lr, betas=(0.5,0.999))
     optimizer = torch.optim.Adam(list(decoder.parameters())+list(bn.parameters()), lr=learning_rate, betas=(0.5,0.999))
 
 
     for epoch in range(epochs):
-        encoder.dat.train()
-
+        
+        dat.train()
         bn.train()
         decoder.train()
         loss_list = []
         for img, label in train_dataloader:
             img = img.to(device)
             inputs = encoder(img)
+
+            input_dat = dat(inputs[2]) 
+            inputs = [inputs[0], inputs[1], inputs[2], input_dat]
+
             outputs = decoder(bn(inputs))
             loss = loss_function_cross(inputs, outputs)
             optimizer_dat.zero_grad()
@@ -136,11 +146,11 @@ def train(_class_):
         print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, epochs, np.mean(loss_list)))
         logging.info(f'Epoch [{epoch + 1}/{epochs}], Loss: {np.mean(loss_list):.4f}')
         if (epoch + 1) % 10 == 0:
-            auroc_px, auroc_sp, aupro_px = evaluation(encoder, bn, decoder, test_dataloader, device)
+            auroc_px, auroc_sp, aupro_px = evaluation(encoder, dat, bn, decoder, test_dataloader, device)
             print('Pixel Auroc:{:.3f}, Sample Auroc{:.3f}, Pixel Aupro{:.3f}'.format(auroc_px, auroc_sp, aupro_px))
             logging.info(f'Pixel Auroc: {auroc_px:.3f}, Sample Auroc: {auroc_sp:.3f}, Pixel Aupro: {aupro_px:.3f}')
             
-            torch.save({'encoder' : encoder.dat.state_dict(),
+            torch.save({'encoder' : dat.state_dict(),
                         'bn': bn.state_dict(),
                         'decoder': decoder.state_dict()}, ckp_path)
     return auroc_px, auroc_sp, aupro_px
@@ -151,7 +161,7 @@ def train(_class_):
 if __name__ == '__main__':
 
     setup_seed(111)
-    item_list = ['carpet', 'bottle', 'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill',
+    item_list = ['bottle','carpet' , 'hazelnut', 'leather', 'cable', 'capsule', 'grid', 'pill',
                  'transistor', 'metal_nut', 'screw','toothbrush', 'zipper', 'tile', 'wood']
     for i in item_list:
         train(i)

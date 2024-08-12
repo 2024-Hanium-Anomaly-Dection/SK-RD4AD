@@ -22,6 +22,7 @@ from scipy.spatial.distance import pdist
 import matplotlib
 import pickle
 
+
 def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
     if amap_mode == 'mul':
         anomaly_map = np.ones([out_size, out_size])
@@ -29,11 +30,20 @@ def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
         anomaly_map = np.zeros([out_size, out_size])
     a_map_list = []
     for i in range(len(ft_list)):
-        fs = fs_list[i]
-        ft = ft_list[i]
         #fs_norm = F.normalize(fs, p=2)
         #ft_norm = F.normalize(ft, p=2)
-        a_map = 1 - F.cosine_similarity(fs, ft)
+        if i ==2 : 
+            fs = fs_list[i]
+            ft = ft_list[3]
+            a_map = 1 - F.cosine_similarity(fs , ft)
+        elif i == 3:
+            fs = fs_list[i]
+            ft = ft_list[2]
+            a_map = 1 - F.cosine_similarity(fs , ft)
+        else : 
+            fs = fs_list[i]
+            ft = ft_list[i]
+            a_map = 1 - F.cosine_similarity(fs, ft)
         a_map = torch.unsqueeze(a_map, dim=1)
         a_map = F.interpolate(a_map, size=out_size, mode='bilinear', align_corners=True)
         a_map = a_map[0, 0, :, :].to('cpu').detach().numpy()
@@ -43,6 +53,7 @@ def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
         else:
             anomaly_map += a_map
     return anomaly_map, a_map_list
+
 
 def show_cam_on_image(img, anomaly_map):
     #if anomaly_map.shape != img.shape:
@@ -61,9 +72,10 @@ def cvt2heatmap(gray):
 
 
 
-def evaluation(encoder, bn, decoder, dataloader,device,_class_=None):
+def evaluation(encoder, dat, bn, decoder, dataloader,device,_class_=None):
     #_, t_bn = resnet50(pretrained=True)
     #bn.load_state_dict(bn.state_dict())
+    dat.eval()
     bn.eval()
     #bn.training = False
     #t_bn.to(device)
@@ -79,6 +91,8 @@ def evaluation(encoder, bn, decoder, dataloader,device,_class_=None):
 
             img = img.to(device)
             inputs = encoder(img)
+            input_dat = dat(inputs[2]) 
+            inputs = [inputs[0], inputs[1], inputs[2], input_dat]
             outputs = decoder(bn(inputs))
             anomaly_map, _ = cal_anomaly_map(inputs, outputs, img.shape[-1], amap_mode='a')
             anomaly_map = gaussian_filter(anomaly_map, sigma=4)

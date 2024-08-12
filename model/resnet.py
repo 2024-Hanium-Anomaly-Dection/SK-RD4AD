@@ -191,13 +191,13 @@ class ResNet(nn.Module):
 
         
         ## DAT 
-        self.dat = DeformableAttention2D(
-                            dim = 1024,
-                            downsample_factor = 4,
-                            offset_scale = 2,
-                            offset_kernel_size = 6,
-                            offset_groups = 1
-                        )
+        # self.dat = DeformableAttention2D(
+        #                     dim = 1024,
+        #                     downsample_factor = 4,
+        #                     offset_scale = 2,
+        #                     offset_kernel_size = 6,
+        #                     offset_groups = 1
+        #                 )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -253,10 +253,10 @@ class ResNet(nn.Module):
         feature_c = self.layer3(feature_b)
 
         #DAT
-        feature_d = self.dat(feature_c)
+        #feature_d = self.dat(feature_c)
 
         #print(f'ResNet size: {feature_a.size()} {feature_b.size()} {feature_c.size()} {feature_d.size()}')
-        return [feature_a, feature_b, feature_c, feature_d]
+        return [feature_a, feature_b, feature_c]#, feature_d]
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
