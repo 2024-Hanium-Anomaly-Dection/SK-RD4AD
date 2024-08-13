@@ -35,34 +35,42 @@ def setup_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-
 ## Attention Transfer Loss
-def attention_transfer_loss(student_feature, teacher_feature):
+def attention_transfer_loss(teacher_attention, student_feature):
     """
-    Compute the Attention Transfer Loss between student and teacher features.
+    Computes the Attention Transfer Loss between the attention features of the teacher model
+    and the original features of the student model before attention.
 
     Args:
-        student_feature (torch.Tensor): The feature map from the student model.
-        teacher_feature (torch.Tensor): The feature map from the teacher model.
+        teacher_attention (torch.Tensor): The attention feature map from the teacher model after DAT.
+        student_feature (torch.Tensor): The feature map from the student model before DAT.
 
     Returns:
         torch.Tensor: The calculated Attention Transfer Loss.
     """
-    def attention_map(feature):
-        # Compute the attention map by summing the square of the feature map across the channel dimension
-        return torch.sum(feature.pow(2), dim=1, keepdim=True)
+    # Flatten the tensors for loss computation
+    teacher_flat = teacher_attention.view(teacher_attention.size(0), -1)
+    student_flat = student_feature.view(student_feature.size(0), -1)
+    
+    # Compute the mean squared error loss
+    loss = torch.mean((teacher_flat - student_flat) ** 2)
+    return loss
 
-    # Generate attention maps for student and teacher features
-    student_attention = attention_map(student_feature)
-    teacher_attention = attention_map(teacher_feature)
 
-    # Normalize the attention maps
-    student_attention_norm = F.normalize(student_attention.view(student_attention.shape[0], -1))
-    teacher_attention_norm = F.normalize(teacher_attention.view(teacher_attention.shape[0], -1))
+## Attention Loss
+def attention_loss(teacher_attention, student_attention):
+    """
+    Computes the Attention Loss between the attention features of the teacher and student models.
 
-    # Compute the Mean Squared Error (MSE) loss between the normalized attention maps
-    loss = F.mse_loss(student_attention_norm, teacher_attention_norm)
+    Args:
+        teacher_attention (torch.Tensor): The attention feature map from the teacher model.
+        student_attention (torch.Tensor): The attention feature map from the student model.
 
+    Returns:
+        torch.Tensor: The calculated Attention Loss.
+    """
+    # Compute the MSE loss between the teacher and student attention maps
+    loss = F.mse_loss(student_attention, teacher_attention)
     return loss
 
 
@@ -84,8 +92,8 @@ def loss_function_cross(a, b):
 
     cosine_loss = 0
     at_loss = 0
-    alpha = 0.4 #cosine
-    beta = 0.6 #attention
+    alpha = 0.3 #cosine
+    beta = 0.7 #attention
     for item in range(len(a)):
         if item == 2:
             loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
@@ -94,7 +102,7 @@ def loss_function_cross(a, b):
             cosine_loss = torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
                                             b[2].view(b[2].shape[0], -1)))
             ## attention transfer loss
-            at_loss = attention_transfer_loss(a[item], b[2])
+            at_loss = attention_loss(a[item], b[2])
             loss += alpha*cosine_loss  + beta*at_loss
         else:
             loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
@@ -175,7 +183,15 @@ def train(_class_):
             inputs = [inputs[0], inputs[1], inputs[2], input_dat]
 
             outputs = decoder(bn(inputs))
-            loss = loss_function_cross(inputs, outputs)
+
+            # Combined Cosine Similarity and Attention Loss
+            loss_combined = loss_function_cross(inputs, outputs)
+            # Attention Transfer Loss (Separate)
+            loss_attention_transfer = attention_transfer_loss(input_dat, outputs[3])
+
+            # total loss
+            loss = 0.3*loss_combined + 0.7*loss_attention_transfer
+
             optimizer_dat.zero_grad()
             optimizer.zero_grad()
             loss.backward()
