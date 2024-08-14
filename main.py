@@ -35,27 +35,6 @@ def setup_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-## Attention Transfer Loss
-def attention_transfer_loss(teacher_attention, student_feature):
-    """
-    Computes the Attention Transfer Loss between the attention features of the teacher model
-    and the original features of the student model before attention.
-
-    Args:
-        teacher_attention (torch.Tensor): The attention feature map from the teacher model after DAT.
-        student_feature (torch.Tensor): The feature map from the student model before DAT.
-
-    Returns:
-        torch.Tensor: The calculated Attention Transfer Loss.
-    """
-    # Flatten the tensors for loss computation
-    teacher_flat = teacher_attention.view(teacher_attention.size(0), -1)
-    student_flat = student_feature.view(student_feature.size(0), -1)
-    
-    # Compute the mean squared error loss
-    loss = torch.mean((teacher_flat - student_flat) ** 2)
-    return loss
-
 
 ## Attention Loss
 def attention_loss(teacher_attention, student_attention):
@@ -90,20 +69,21 @@ def loss_function_cross(a, b):
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
 
-    cosine_loss = 0
-    at_loss = 0
-    alpha = 0.3 #cosine
-    beta = 0.7 #attention
+    #cosine_loss = 0
+    #at_loss = 0
+    #alpha = 0.3 #cosine
+    #beta = 0.7 #attention
     for item in range(len(a)):
         if item == 2:
             loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
                                             b[3].view(b[3].shape[0], -1)))
         elif item == 3: #dat 통과 직후의 피쳐들
-            cosine_loss = torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
-                                            b[2].view(b[2].shape[0], -1)))
-            ## attention transfer loss
-            at_loss = attention_loss(a[item], b[2])
-            loss += alpha*cosine_loss  + beta*at_loss
+            # cosine_loss = torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
+            #                                 b[2].view(b[2].shape[0], -1)))
+            # ## attention transfer loss
+            # at_loss = attention_loss(a[item], b[2])
+            # loss += alpha*cosine_loss  + beta*at_loss
+            pass
         else:
             loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
                                             b[item].view(b[item].shape[0], -1)))
@@ -184,13 +164,13 @@ def train(_class_):
 
             outputs = decoder(bn(inputs))
 
-            # Combined Cosine Similarity and Attention Loss
-            loss_combined = loss_function_cross(inputs, outputs)
-            # Attention Transfer Loss (Separate)
-            loss_attention_transfer = attention_transfer_loss(input_dat, outputs[3])
+            # Cosine Similarity Loss
+            loss_cosine = loss_function_cross(inputs, outputs)
+            # Attention Loss (Separate)
+            loss_attention = attention_loss(input_dat, outputs[2])
 
             # total loss
-            loss = 0.3*loss_combined + 0.7*loss_attention_transfer
+            loss = 0.3*loss_cosine + 0.7*loss_attention
 
             optimizer_dat.zero_grad()
             optimizer.zero_grad()
