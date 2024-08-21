@@ -20,7 +20,36 @@ from sklearn import manifold
 from matplotlib.ticker import NullFormatter
 from scipy.spatial.distance import pdist
 import matplotlib
-import pickle
+
+
+## Attention Transfer Loss
+def attention_transfer_loss(student_feature, teacher_feature):
+    """
+    Compute the Attention Transfer Loss between student and teacher features.
+
+    Args:
+        student_feature (torch.Tensor): The feature map from the student model.
+        teacher_feature (torch.Tensor): The feature map from the teacher model.
+
+    Returns:
+        torch.Tensor: The calculated Attention Transfer Loss.
+    """
+    def attention_map(feature):
+        # Compute the attention map by summing the square of the feature map across the channel dimension
+        return torch.sum(feature.pow(2), dim=1, keepdim=True)
+
+    # Generate attention maps for student and teacher features
+    student_attention = attention_map(student_feature)
+    teacher_attention = attention_map(teacher_feature)
+
+    # Normalize the attention maps
+    student_attention_norm = F.normalize(student_attention.view(student_attention.shape[0], -1))
+    teacher_attention_norm = F.normalize(teacher_attention.view(teacher_attention.shape[0], -1))
+
+    # Compute the Mean Squared Error (MSE) loss between the normalized attention maps
+    loss = F.mse_loss(student_attention_norm, teacher_attention_norm)
+
+    return loss
 
 
 def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
@@ -29,6 +58,8 @@ def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
     else:
         anomaly_map = np.zeros([out_size, out_size])
     a_map_list = []
+    cos = 0
+    at_loss = 0
     for i in range(len(ft_list)):
         #fs_norm = F.normalize(fs, p=2)
         #ft_norm = F.normalize(ft, p=2)
@@ -39,7 +70,9 @@ def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
         elif i == 3:
             fs = fs_list[i]
             ft = ft_list[2]
-            a_map = 1 - F.cosine_similarity(fs , ft)
+            cos = 1 - F.cosine_similarity(fs , ft)
+            at_loss = attention_transfer_loss(fs , ft)
+            a_map = 0.5*cos + 0.5*at_loss
         else : 
             fs = fs_list[i]
             ft = ft_list[i]

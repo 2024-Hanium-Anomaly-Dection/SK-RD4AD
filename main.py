@@ -35,6 +35,38 @@ def setup_seed(seed):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+
+## Attention Transfer Loss
+def attention_transfer_loss(student_feature, teacher_feature):
+    """
+    Compute the Attention Transfer Loss between student and teacher features.
+
+    Args:
+        student_feature (torch.Tensor): The feature map from the student model.
+        teacher_feature (torch.Tensor): The feature map from the teacher model.
+
+    Returns:
+        torch.Tensor: The calculated Attention Transfer Loss.
+    """
+    def attention_map(feature):
+        # Compute the attention map by summing the square of the feature map across the channel dimension
+        return torch.sum(feature.pow(2), dim=1, keepdim=True)
+
+    # Generate attention maps for student and teacher features
+    student_attention = attention_map(student_feature)
+    teacher_attention = attention_map(teacher_feature)
+
+    # Normalize the attention maps
+    student_attention_norm = F.normalize(student_attention.view(student_attention.shape[0], -1))
+    teacher_attention_norm = F.normalize(teacher_attention.view(teacher_attention.shape[0], -1))
+
+    # Compute the Mean Squared Error (MSE) loss between the normalized attention maps
+    loss = F.mse_loss(student_attention_norm, teacher_attention_norm)
+
+    return loss
+
+
+
 def loss_fucntion(a, b):
     #mse_loss = torch.nn.MSELoss()
     cos_loss = torch.nn.CosineSimilarity()
@@ -49,13 +81,21 @@ def loss_function_cross(a, b):
     # mse_loss = torch.nn.MSELoss()
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
+
+    cosine_loss = 0
+    at_loss = 0
+    alpha = 0.4 #cosine
+    beta = 0.6 #attention
     for item in range(len(a)):
         if item == 2:
             loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
                                             b[3].view(b[3].shape[0], -1)))
-        elif item == 3:
-            loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
+        elif item == 3: #dat 통과 직후의 피쳐들
+            cosine_loss = torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
                                             b[2].view(b[2].shape[0], -1)))
+            ## attention transfer loss
+            at_loss = attention_transfer_loss(a[item], b[2])
+            loss += alpha*cosine_loss  + beta*at_loss
         else:
             loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
                                             b[item].view(b[item].shape[0], -1)))
@@ -80,7 +120,7 @@ def loss_concat(a, b):
 
 def train(_class_):
     # 로깅 설정
-    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_dat_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_dat_loss_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     logging.info(f'Training started for class: {_class_}')
 
     epochs = 200
@@ -95,7 +135,7 @@ def train(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
     test_path = '/home/intern24/mvtec/' + _class_  
-    ckp_path = '/home/intern24/anomaly_checkpoints/dat_train/' + 'input_dat_add_'+_class_+'.pth'
+    ckp_path = '/home/intern24/anomaly_checkpoints/dat_train/loss_add/' + 'input_dat_add_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
