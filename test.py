@@ -33,6 +33,10 @@ def attention_loss(teacher_attention, student_attention):
     Returns:
         torch.Tensor: The calculated Attention Loss.
     """
+    # Flatten the tensors for loss computation
+    teacher_attention = teacher_attention.view(teacher_attention.size(0), -1)
+    student_attention = student_attention.view(student_attention.size(0), -1)
+
     # Compute the MSE loss between the teacher and student attention maps
     loss = F.mse_loss(student_attention, teacher_attention)
     return loss
@@ -79,6 +83,7 @@ def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
             fs = fs_list[i]
             ft = ft_list[2]
             a_map = 1 - F.cosine_similarity(fs , ft)
+            # a_map = attention_loss(fs , ft)
             # cos = 1 - F.cosine_similarity(fs , ft)
             # at_loss = attention_loss(fs , ft)
             # a_map = 0.3*cos + 0.7*at_loss
