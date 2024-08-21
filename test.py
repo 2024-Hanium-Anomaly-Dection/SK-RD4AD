@@ -22,34 +22,46 @@ from scipy.spatial.distance import pdist
 import matplotlib
 
 
-## Attention Transfer Loss
-def attention_transfer_loss(student_feature, teacher_feature):
+def attention_loss(teacher_attention, student_attention):
     """
-    Compute the Attention Transfer Loss between student and teacher features.
+    Computes the Attention Loss between the attention features of the teacher and student models.
 
     Args:
-        student_feature (torch.Tensor): The feature map from the student model.
-        teacher_feature (torch.Tensor): The feature map from the teacher model.
+        teacher_attention (torch.Tensor): The attention feature map from the teacher model.
+        student_attention (torch.Tensor): The attention feature map from the student model.
+
+    Returns:
+        torch.Tensor: The calculated Attention Loss.
+    """
+    # Flatten the tensors for loss computation
+    teacher_attention = teacher_attention.view(teacher_attention.size(0), -1)
+    student_attention = student_attention.view(student_attention.size(0), -1)
+
+    # Compute the MSE loss between the teacher and student attention maps
+    loss = F.mse_loss(student_attention, teacher_attention)
+    return loss
+
+## Attention Transfer Loss
+def attention_transfer_loss(teacher_attention, student_feature):
+    """
+    Computes the Attention Transfer Loss between the attention features of the teacher model
+    and the original features of the student model before attention.
+
+    Args:
+        teacher_attention (torch.Tensor): The attention feature map from the teacher model after DAT.
+        student_feature (torch.Tensor): The feature map from the student model before DAT.
 
     Returns:
         torch.Tensor: The calculated Attention Transfer Loss.
     """
-    def attention_map(feature):
-        # Compute the attention map by summing the square of the feature map across the channel dimension
-        return torch.sum(feature.pow(2), dim=1, keepdim=True)
-
-    # Generate attention maps for student and teacher features
-    student_attention = attention_map(student_feature)
-    teacher_attention = attention_map(teacher_feature)
-
-    # Normalize the attention maps
-    student_attention_norm = F.normalize(student_attention.view(student_attention.shape[0], -1))
-    teacher_attention_norm = F.normalize(teacher_attention.view(teacher_attention.shape[0], -1))
-
-    # Compute the Mean Squared Error (MSE) loss between the normalized attention maps
-    loss = F.mse_loss(student_attention_norm, teacher_attention_norm)
-
+    # Flatten the tensors for loss computation
+    teacher_flat = teacher_attention.view(teacher_attention.size(0), -1)
+    student_flat = student_feature.view(student_feature.size(0), -1)
+    
+    # Compute the mean squared error loss
+    loss = torch.mean((teacher_flat - student_flat) ** 2)
     return loss
+
 
 
 def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
@@ -70,9 +82,11 @@ def cal_anomaly_map(fs_list, ft_list, out_size=224, amap_mode='mul'):
         elif i == 3:
             fs = fs_list[i]
             ft = ft_list[2]
-            cos = 1 - F.cosine_similarity(fs , ft)
-            at_loss = attention_transfer_loss(fs , ft)
-            a_map = 0.5*cos + 0.5*at_loss
+            a_map = 1 - F.cosine_similarity(fs , ft)
+            # a_map = attention_loss(fs , ft)
+            # cos = 1 - F.cosine_similarity(fs , ft)
+            # at_loss = attention_loss(fs , ft)
+            # a_map = 0.3*cos + 0.7*at_loss
         else : 
             fs = fs_list[i]
             ft = ft_list[i]
