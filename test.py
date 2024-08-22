@@ -126,6 +126,9 @@ def evaluation(encoder, dat, bn, decoder, dataloader,device,_class_=None):
             input_dat = dat(inputs[2]) 
             inputs = [inputs[0], inputs[1], inputs[2], input_dat]
             outputs = decoder(bn(inputs))
+
+            inputs = [inputs[0], inputs[1], input_dat]
+            
             anomaly_map, _ = cal_anomaly_map(inputs, outputs, img.shape[-1], amap_mode='a')
             anomaly_map = gaussian_filter(anomaly_map, sigma=4)
             gt[gt > 0.5] = 1

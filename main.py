@@ -54,23 +54,11 @@ def attention_loss(teacher_attention, student_attention):
 
 
 
-def loss_fucntion(a, b):
+def loss_function(a, b):
     #mse_loss = torch.nn.MSELoss()
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
     for item in range(len(a)):
-        #loss += 0.1*mse_loss(a[item], b[item])
-        loss += torch.mean(1-cos_loss(a[item].view(a[item].shape[0],-1),
-                                      b[item].view(b[item].shape[0],-1)))
-    return loss
-
-def loss_function_cross(a, b):
-    #mse_loss = torch.nn.MSELoss()
-    cos_loss = torch.nn.CosineSimilarity()
-    loss = 0
-    for item in range(len(a)):
-        #print(a[item].shape)
-        #print(b[item].shape)
         #loss += 0.1*mse_loss(a[item], b[item])
         loss += torch.mean(1-cos_loss(a[item].view(a[item].shape[0],-1),
                                       b[item].view(b[item].shape[0],-1)))
@@ -95,7 +83,7 @@ def loss_concat(a, b):
 
 def train(_class_):
     # 로깅 설정
-    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_dat_ed3_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_dat_ed3pairchange_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     logging.info(f'Training started for class: {_class_}')
 
     epochs = 200
@@ -110,7 +98,7 @@ def train(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
     test_path = '/home/intern24/mvtec/' + _class_  
-    ckp_path = '/home/intern24/anomaly_checkpoints/dat_train2/ed3/' + 'input_dat_add_'+_class_+'.pth'
+    ckp_path = '/home/intern24/anomaly_checkpoints/dat_train2/ed3_pair_change/' + 'input_dat_add_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -151,8 +139,9 @@ def train(_class_):
 
             outputs = decoder(bn(inputs))
 
-            # Cosine Similarity Loss + Attention Loss
-            loss = loss_function_cross(inputs[:2], outputs)
+            inputs = [inputs[0], inputs[1], input_dat]
+            # Cosine Similarity Loss
+            loss = loss_function(inputs, outputs)
             # Attention Loss (Separate)
             # loss_attention = attention_loss(input_dat, outputs[2])
 
