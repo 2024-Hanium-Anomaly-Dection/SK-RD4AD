@@ -65,29 +65,15 @@ def loss_fucntion(a, b):
     return loss
 
 def loss_function_cross(a, b):
-    # mse_loss = torch.nn.MSELoss()
+    #mse_loss = torch.nn.MSELoss()
     cos_loss = torch.nn.CosineSimilarity()
     loss = 0
-
-    #cosine_loss = 0
-    #at_loss = 0
-    alpha = 0.3 #cosine
-    beta = 0.7 #attention
     for item in range(len(a)):
-        if item == 2:
-            loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
-                                            b[3].view(b[3].shape[0], -1)))
-        elif item == 3: #dat 통과 직후의 피쳐들
-            # cosine_loss = torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
-            #                                b[2].view(b[2].shape[0], -1)))
-            ## attention loss
-            # at_loss = attention_loss(a[item], b[2])
-            # loss += alpha*cosine_loss  + beta*at_loss
-            loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
-                                            b[2].view(b[2].shape[0], -1)))
-        else:
-            loss += torch.mean(1 - cos_loss(a[item].view(a[item].shape[0], -1),
-                                            b[item].view(b[item].shape[0], -1)))
+        #print(a[item].shape)
+        #print(b[item].shape)
+        #loss += 0.1*mse_loss(a[item], b[item])
+        loss += torch.mean(1-cos_loss(a[item].view(a[item].shape[0],-1),
+                                      b[item].view(b[item].shape[0],-1)))
     return loss
 
 
@@ -109,7 +95,7 @@ def loss_concat(a, b):
 
 def train(_class_):
     # 로깅 설정
-    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_dat_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
+    logging.basicConfig(filename=f'/home/intern24/anomaly/input_dat_encoder2/AnomalyDetection/output_log/training_dat_ed3_log.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
     logging.info(f'Training started for class: {_class_}')
 
     epochs = 200
@@ -124,7 +110,7 @@ def train(_class_):
     data_transform, gt_transform = get_data_transforms(image_size, image_size)
     train_path = '/home/intern24/mvtec/' + _class_ + '/train'
     test_path = '/home/intern24/mvtec/' + _class_  
-    ckp_path = '/home/intern24/anomaly_checkpoints/dat_train/' + 'input_dat_add_'+_class_+'.pth'
+    ckp_path = '/home/intern24/anomaly_checkpoints/dat_train2/ed3/' + 'input_dat_add_'+_class_+'.pth'
     train_data = ImageFolder(root=train_path, transform=data_transform)
     test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test")
     train_dataloader = torch.utils.data.DataLoader(train_data, batch_size=batch_size, shuffle=True)
@@ -166,7 +152,7 @@ def train(_class_):
             outputs = decoder(bn(inputs))
 
             # Cosine Similarity Loss + Attention Loss
-            loss = loss_function_cross(inputs, outputs)
+            loss = loss_function_cross(inputs[:2], outputs)
             # Attention Loss (Separate)
             # loss_attention = attention_loss(input_dat, outputs[2])
 

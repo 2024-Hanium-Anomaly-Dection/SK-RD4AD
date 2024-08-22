@@ -266,18 +266,18 @@ class ResNet(nn.Module):
         feature_a = self.layer1(x)  # 512*8*8->256*16*16
         #print(f"ResNet layer1 output shape: {feature_a.shape}")
 
-        feature_b = self.dat(feature_a)  # 256*16*16->128*32*32
+        #feature_b = self.dat(feature_a)  # 256*16*16->128*32*32
         #print(f"ResNet layer2 output shape: {feature_b.shape}")
 
-        feature_c = self.layer2(feature_b)  # 128*32*32->64*64*64
+        feature_b = self.layer2(feature_a)  # 128*32*32->64*64*64
         #print(f"ResNet layer3 output shape: {feature_c.shape}")
 
 
-        feature_d = self.layer3(feature_c)
+        feature_c = self.layer3(feature_b)
 
         #print(f'DE_ResNet size: {feature_a.size()} {feature_b.size()} {feature_c.size()} {feature_d.size()}')
        
-        return [feature_d, feature_c, feature_b, feature_a]
+        return [feature_c, feature_b, feature_a]
 
     def forward(self, x: Tensor) -> Tensor:
         return self._forward_impl(x)
