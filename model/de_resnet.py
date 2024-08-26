@@ -8,9 +8,6 @@ except ImportError:
 from typing import Type, Any, Callable, Union, List, Optional
 
 
-from .dat import DeformableAttention2D
-
-
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',
            'resnet152', 'resnext50_32x4d', 'resnext101_32x8d',
            'wide_resnet50_2', 'wide_resnet101_2']
@@ -136,30 +133,24 @@ class Bottleneck(nn.Module):
         self.stride = stride
 
     def forward(self, x: Tensor) -> Tensor:
-        #print(f"Bottleneck input shape: {x.shape}")
         identity = x
 
         out = self.conv1(x)
         out = self.bn1(out)
         out = self.relu(out)
-        #print(f"Bottleneck conv1 output shape: {out.shape}")
 
         out = self.conv2(out)
         out = self.bn2(out)
         out = self.relu(out)
-        #print(f"Bottleneck conv2 output shape: {out.shape}")
 
         out = self.conv3(out)
         out = self.bn3(out)
-        #print(f"Bottleneck conv3 output shape: {out.shape}")
 
         if self.upsample is not None:
             identity = self.upsample(x)
-            #print(f"Bottleneck upsample output shape: {identity.shape}")
 
         out += identity
         out = self.relu(out)
-        #print(f"Bottleneck final output shape: {out.shape}")
 
         return out
 
@@ -193,6 +184,7 @@ class ResNet(nn.Module):
                              "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
+        self.relu = nn.ReLU(inplace=True)
         #self.conv1 = nn.Conv2d(3, self.inplanes, kernel_size=7, stride=2, padding=3,
         #                       bias=False)
         #self.bn1 = norm_layer(self.inplanes)
@@ -203,19 +195,10 @@ class ResNet(nn.Module):
                                        dilate=replace_stride_with_dilation[0])
         self.layer3 = self._make_layer(block, 64, layers[2], stride=2,
                                        dilate=replace_stride_with_dilation[1])
-        self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
-                                       dilate=replace_stride_with_dilation[2])
+        #self.layer4 = self._make_layer(block, 512, layers[3], stride=2,
+        #                               dilate=replace_stride_with_dilation[2])
         #self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         #self.fc = nn.Linear(512 * block.expansion, num_classes)
-                
-        ## DAT 
-        self.dat = DeformableAttention2D(
-                            dim = 1024,
-                            downsample_factor = 4,
-                            offset_scale = 2,
-                            offset_kernel_size = 6,
-                            offset_groups = 1
-                        )
 
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
@@ -259,28 +242,32 @@ class ResNet(nn.Module):
 
         return nn.Sequential(*layers)
 
-    def _forward_impl(self, x: Tensor) -> Tensor:
-        #print(f"ResNet input shape: {x.shape}")
-        
-        #print(x.size())
-        feature_a = self.layer1(x)  # 512*8*8->256*16*16
-        #print(f"ResNet layer1 output shape: {feature_a.shape}")
+    def _forward_impl(self, x, y, res) -> Tensor:
+        # If res == 1, there is no skip connection; the forward pass is sequential through layer1, layer2, and layer3
+        if res == 1:
+            feature_a = self.layer1(x)  # Pass input x through the first layer
+            feature_b = self.layer2(feature_a)  # Pass the output of layer1 through the second layer
+            feature_c = self.layer3(feature_b)  # Pass the output of layer2 through the third layer
 
-        #feature_b = self.dat(feature_a)  # 256*16*16->128*32*32
-        #print(f"ResNet layer2 output shape: {feature_b.shape}")
+        # If res == 2, a skip connection is used from the output of layer1 to the input of layer2
+        if res == 2:
+            feature_a = self.layer1(x)  # Pass input x through the first layer
+            # Add the output of the first layer (feature_a) to the corresponding feature from y (y[2]) and apply ReLU
+            feature_b = self.layer2(self.relu(feature_a + y[2]))  # Pass this modified input through the second layer
+            feature_c = self.layer3(feature_b)  # Pass the output of layer2 through the third layer
 
-        feature_b = self.layer2(feature_a)  # 128*32*32->64*64*64
-        #print(f"ResNet layer3 output shape: {feature_c.shape}")
+        # If res == 3, skip connections are used from the output of both layer1 and layer2
+        if res == 3:
+            feature_a = self.layer1(x)  # Pass input x through the first layer
+            # Add the output of the first layer (feature_a) to y[2], apply ReLU, and pass through layer2
+            feature_b = self.layer2(self.relu(feature_a + y[2]))
+            # Add the output of the second layer (feature_b) to y[1], apply ReLU, and pass through layer3
+            feature_c = self.layer3(self.relu(feature_b + y[1]))
 
-
-        feature_c = self.layer3(feature_b)
-
-        #print(f'DE_ResNet size: {feature_a.size()} {feature_b.size()} {feature_c.size()} {feature_d.size()}')
-       
-        return [feature_c, feature_b, feature_a]
-
-    def forward(self, x: Tensor) -> Tensor:
-        return self._forward_impl(x)
+        # Return the features from layer3, layer2, and layer1 in a list
+        return [feature_c, feature_b, feature_a]  
+    def forward(self, x,y,res) -> Tensor:
+        return self._forward_impl(x,y,res)
 
 
 def _resnet(
@@ -295,121 +282,32 @@ def _resnet(
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls[arch],
                                               progress=progress)
-        #for k,v in list(state_dict.items()):
-        #    if 'layer4' in k or 'fc' in k:
-        #        state_dict.pop(k)
         model.load_state_dict(state_dict)
     return model
 
 
 def de_resnet18(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""ResNet-18 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
     return _resnet('resnet18', BasicBlock, [2, 2, 2, 2], pretrained, progress,
                    **kwargs)
 
 
 def de_resnet34(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""ResNet-34 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
     return _resnet('resnet34', BasicBlock, [3, 4, 6, 3], pretrained, progress,
                    **kwargs)
 
 
 def de_resnet50(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""ResNet-50 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
     return _resnet('resnet50', Bottleneck, [3, 4, 6, 3], pretrained, progress,
                    **kwargs)
 
 
-def resnet101(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""ResNet-101 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
-    return _resnet('resnet101', Bottleneck, [3, 4, 23, 3], pretrained, progress,
-                   **kwargs)
-
-
-def resnet152(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""ResNet-152 model from
-    `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
-    return _resnet('resnet152', Bottleneck, [3, 8, 36, 3], pretrained, progress,
-                   **kwargs)
-
-
-def resnext50_32x4d(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""ResNeXt-50 32x4d model from
-    `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
-    kwargs['groups'] = 32
-    kwargs['width_per_group'] = 4
-    return _resnet('resnext50_32x4d', Bottleneck, [3, 4, 6, 3],
-                   pretrained, progress, **kwargs)
-
-
-def resnext101_32x8d(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""ResNeXt-101 32x8d model from
-    `"Aggregated Residual Transformation for Deep Neural Networks" <https://arxiv.org/pdf/1611.05431.pdf>`_.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
-    kwargs['groups'] = 32
-    kwargs['width_per_group'] = 8
-    return _resnet('resnext101_32x8d', Bottleneck, [3, 4, 23, 3],
-                   pretrained, progress, **kwargs)
-
-
 def de_wide_resnet50_2(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""Wide ResNet-50-2 model from
-    `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_.
-    The model is the same as ResNet except for the bottleneck number of channels
-    which is twice larger in every block. The number of channels in outer 1x1
-    convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
-    channels, and in Wide ResNet-50-2 has 2048-1024-2048.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
     kwargs['width_per_group'] = 64 * 2
     return _resnet('wide_resnet50_2', Bottleneck, [3, 4, 6, 3],
                    pretrained, progress, **kwargs)
 
 
 def de_wide_resnet101_2(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
-    r"""Wide ResNet-101-2 model from
-    `"Wide Residual Networks" <https://arxiv.org/pdf/1605.07146.pdf>`_.
-    The model is the same as ResNet except for the bottleneck number of channels
-    which is twice larger in every block. The number of channels in outer 1x1
-    convolutions is the same, e.g. last block in ResNet-50 has 2048-512-2048
-    channels, and in Wide ResNet-50-2 has 2048-1024-2048.
-    Args:
-        pretrained (bool): If True, returns a model pre-trained on ImageNet
-        progress (bool): If True, displays a progress bar of the download to stderr
-    """
     kwargs['width_per_group'] = 64 * 2
     return _resnet('wide_resnet101_2', Bottleneck, [3, 4, 23, 3],
                    pretrained, progress, **kwargs)
