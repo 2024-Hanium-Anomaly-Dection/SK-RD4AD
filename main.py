@@ -173,11 +173,11 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
                     print('max_epoch = ', max_auc_epoch[max_auc.index(max(max_auc))])
                 print('------------------')
 
-                # Save model only if the average of AUROC and AUPRO is the maximum
+                # Save model only if Sample AUROC is the maximum
                 current_avg_score = auroc_sp
 
                 if current_avg_score > best_avg_score:
-                    print(f"New best model found at epoch {epoch+1} with Pixel Auroc{auroc_px:.3f}")
+                    print(f"New best model found at epoch {epoch+1} with Sample Auroc{auroc_sp:.3f}")
                     torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
                     best_avg_score = current_avg_score
                
