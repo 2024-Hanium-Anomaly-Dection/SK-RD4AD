@@ -6,7 +6,7 @@ import random
 import os
 from model.resnet import resnet18, resnet34, resnet50, wide_resnet50_2
 from model.de_resnet import de_resnet18, de_resnet34, de_wide_resnet50_2, de_resnet50
-from dataset.dataset import MVTecDataset
+from dataset.dataset import MVTecDataset,MVTecDataset_no_seg
 import torch.backends.cudnn as cudnn
 import argparse
 from test import evaluation_me, evaluation_visualization, evaluation, evaluation_visualization_no_seg
@@ -97,7 +97,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
 
     # Whether to use segmentation
     if seg == 0:  
-        test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test") 
+        test_data = MVTecDataset_no_seg(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test") 
         test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=1, shuffle=False, num_workers=8)
     if seg == 1:
         test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test") 

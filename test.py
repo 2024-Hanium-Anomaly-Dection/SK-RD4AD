@@ -129,7 +129,7 @@ def evaluation_me(encoder, decoder, res, dataloader, device, print_canshu, score
     aupro_list = [] 
 
     with torch.no_grad():
-        for (img, _, label, _) in dataloader:
+        for (img, label, _) in dataloader:
             img = img.to(device) 
             inputs = encoder(img)
             outputs = decoder(inputs[3], inputs[0:3], res)
