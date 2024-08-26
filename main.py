@@ -163,16 +163,24 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
         if (epoch + 1) % print_epoch == 0:
             # Test set without mask
             if seg == 0:
-                auroc_sp, auroc_px, avg_aupro = evaluation_me(encoder, decoder, res, test_dataloader, device, print_canshu, score_num)
+                auroc_sp= evaluation_me(encoder, decoder, res, test_dataloader, device, print_canshu, score_num)
                 print('epoch:', (epoch + 1))
-                print('Sample Auroc{:.3f}'.format(auroc_sp, auroc_px, avg_aupro))
+                print('Sample Auroc{:.3f}'.format(auroc_sp))
                 max_auc.append(auroc_sp)
                 max_auc_epoch.append(epoch + 1)
                 if print_max == 1:
                     print('max_auc = ', max(max_auc))
                     print('max_epoch = ', max_auc_epoch[max_auc.index(max(max_auc))])
                 print('------------------')
-                torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'auc=' + str(auroc_sp) + '.pth')
+
+                # Save model only if the average of AUROC and AUPRO is the maximum
+                current_avg_score = auroc_sp
+
+                if current_avg_score > best_avg_score:
+                    print(f"New best model found at epoch {epoch+1} with Pixel Auroc{auroc_px:.3f}")
+                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
+                    best_avg_score = current_avg_score
+               
                 if vis == 1:  # Visualization output when no mask
                     evaluation_visualization_no_seg(encoder, decoder, res, test_dataloader, device, print_canshu, score_num, img_path)
 
@@ -206,7 +214,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
                 # Save model only if the average of AUROC and AUPRO is the maximum
                 if current_avg_score > best_avg_score:
                     print(f"New best model found at epoch {epoch+1} with average score: {current_avg_score:.3f} (Pixel Auroc{auroc_px:.3f}/Pixel Aupro{aupro_px:.3f})")
-                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'auc=' + str(auroc_sp) + '.pth')
+                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'pixel_auc=' + str(auroc_px) +'aupro=' + str(aupro_px) +'.pth')
                     best_avg_score = current_avg_score
     return auroc_sp
 
