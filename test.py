@@ -120,13 +120,7 @@ def evaluation_me(encoder, decoder, res, dataloader, device, print_canshu, score
     # Lists to store sample-level labels and predictions
     gt_list_sp = [] 
     pr_list_sp = [] 
-    
-    # Lists to store pixel-level labels and predictions
-    gt_list_px = [] 
-    pr_list_px = [] 
-    
-    # List to store aupro (area under the per-region overlap)
-    aupro_list = [] 
+
 
     with torch.no_grad():
         for (img, label, _) in dataloader:
@@ -143,17 +137,11 @@ def evaluation_me(encoder, decoder, res, dataloader, device, print_canshu, score
 
             # Calculate sample-level predictions
             pre_map = np.flipud(np.sort(anomaly_map.flatten()))
-            pre = sum(pre_map[:score_num]) / score_num
-            pr_list_sp.append(round(pre, 3)) 
-
-            # Add pixel-level labels and predictions
-            gt_list_px.extend(label.cpu().numpy().astype(int).ravel())
-            pr_list_px.extend(anomaly_map.ravel())
-
-            # Calculate aupro if needed
-            if label.item() != 0:
-                aupro_list.append(compute_pro(label.squeeze(0).cpu().numpy().astype(int), 
-                                              anomaly_map[np.newaxis, :, :]))
+            pre = 0
+            for x in range(score_num):
+                pre +=pre_map[x]
+            pre = pre/score_num
+            pr_list_sp.append(round(pre,3))
 
         if print_canshu == 1:
             print(gt_list_sp, pr_list_sp)  # Print intermediate results
@@ -161,13 +149,8 @@ def evaluation_me(encoder, decoder, res, dataloader, device, print_canshu, score
         # Calculate sample-level AUROC
         auroc_sp = round(roc_auc_score(gt_list_sp, pr_list_sp), 3)
         
-        # Calculate pixel-level AUROC
-        auroc_px = round(roc_auc_score(gt_list_px, pr_list_px), 3)
-        
-        # Calculate average aupro
-        avg_aupro = round(np.mean(aupro_list), 3) if aupro_list else 0
     
-    return auroc_sp, auroc_px, avg_aupro  # Return three values
+    return auroc_sp
 
 # Generate heatmaps for evaluation visualization
 def evaluation_visualization(encoder, decoder, res, dataloader, device, print_canshu, score_num, img_path):

@@ -97,7 +97,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
 
     # Whether to use segmentation
     if seg == 0:  
-        test_data = MVTecDataset_no_seg(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test") 
+        test_data = MVTecDataset_no_seg(root=test_path, transform=data_transform, phase="test") 
         test_dataloader = torch.utils.data.DataLoader(test_data, batch_size=1, shuffle=False, num_workers=8)
     if seg == 1:
         test_data = MVTecDataset(root=test_path, transform=data_transform, gt_transform=gt_transform, phase="test") 
