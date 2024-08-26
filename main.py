@@ -83,6 +83,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
     image_size = 256
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print(device)
+    print(class_)
     if not os.path.exists(save_path):
         os.mkdir(save_path)
     data_transform, gt_transform = get_data_transforms(image_size, image_size) 
@@ -134,6 +135,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
     max_auc_epoch = []
     max_pr = []
     max_pr_epoch = []
+    best_avg_score = 0
 
     # Start training
     for epoch in range(epochs):
@@ -158,7 +160,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
         if print_loss == 1:
             print('epoch [{}/{}], loss:{:.4f}'.format(epoch + 1, epochs, np.mean(loss_list)))
 
-        if (epoch + 1) % 10 == 0:
+        if (epoch + 1) % print_epoch == 0:
             # Test set without mask
             if seg == 0:
                 auroc_sp, auroc_px, avg_aupro = evaluation_me(encoder, decoder, res, test_dataloader, device, print_canshu, score_num)
@@ -184,10 +186,6 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
                 auroc_px, auroc_sp, aupro_px = evaluation(encoder, decoder, res, test_dataloader, device, img_path)
                 print('Pixel Auroc: {:.3f}, Sample Auroc: {:.3f}, Pixel Aupro: {:.3}'.format(auroc_px, auroc_sp, aupro_px))
 
-                # Calculate the average score of the current epoch
-                current_avg_score = (auroc_px + aupro_px) / 2
-
-
 
                 # Update AUROC and AUPRO lists
                 max_auc.append(auroc_px)
@@ -202,7 +200,14 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
                 print('max_pr = ', max(max_pr))
                 print('max_epoch = ', max_pr_epoch[max_pr.index(max(max_pr))])
 
-                torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'auc=' + str(auroc_sp) + '.pth')
+                # Calculate the average score of the current epoch
+                current_avg_score = (auroc_px + aupro_px) / 2
+
+                # Save model only if the average of AUROC and AUPRO is the maximum
+                if current_avg_score > best_avg_score:
+                    print(f"New best model found at epoch {epoch+1} with average score: {current_avg_score:.3f} (Pixel Auroc{auroc_px:.3f}/Pixel Aupro{aupro_px:.3f})")
+                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'auc=' + str(auroc_sp) + '.pth')
+                    best_avg_score = current_avg_score
     return auroc_sp
 
 if __name__ == '__main__':
@@ -244,13 +249,13 @@ if __name__ == '__main__':
             print(class_)
             print(epoch)
             print(rate)
-            print_epoch = epoch
-            for seed in args.seed:
-                print('*************************')
-                print('seed:', seed)
-                setup_seed(seed)
-                train(class_, epoch, args.learning_rate, args.res, args.batch_size, print_epoch, args.seg, args.data_path, args.save_path, args.print_canshu, args.score_num, args.print_loss, args.img_path, args.vis, args.cut, args.layerloss, rate, args.print_max, args.net, args.L2, seed)
-                print('*************************')  
+            print_epoch = args.print_epoch
+            seed = args.seed[0]
+            print('*************************')
+            print('seed:', seed)
+            setup_seed(seed)
+            train(class_, epoch, args.learning_rate, args.res, args.batch_size, print_epoch, args.seg, args.data_path, args.save_path, args.print_canshu, args.score_num, args.print_loss, args.img_path, args.vis, args.cut, args.layerloss, rate, args.print_max, args.net, args.L2, seed)
+            print('*************************')  
 
     if args.class_ != 'all':
             for seed in args.seed:
