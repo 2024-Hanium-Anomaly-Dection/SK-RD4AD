@@ -23,7 +23,7 @@ def get_data_transforms(size, isize):
     ])
     return data_transforms, gt_transforms
 
-
+# Custom dataset class for MVTec dataset
 class MVTecDataset_no_seg(torch.utils.data.Dataset):
     def __init__(self, root, transform, phase):
         if phase == 'train':
@@ -76,7 +76,6 @@ class MVTecDataset_no_seg(torch.utils.data.Dataset):
         #print(img.shape,img_type)
         return img, label, img_type
 
-# Custom dataset class for MVTec dataset
 class MVTecDataset(torch.utils.data.Dataset):
     def __init__(self, root, transform, gt_transform, phase):
         if phase == 'train':
@@ -106,6 +105,121 @@ class MVTecDataset(torch.utils.data.Dataset):
                 tot_types.extend(['good'] * len(img_paths))
             else:  # Anomalous images
                 img_paths = glob.glob(os.path.join(self.img_path, defect_type) + "/*.png")
+                gt_paths = glob.glob(os.path.join(self.gt_path, defect_type) + "/*.png")
+                img_paths.sort()
+                gt_paths.sort()
+                img_tot_paths.extend(img_paths)
+                gt_tot_paths.extend(gt_paths)
+                tot_labels.extend([1] * len(img_paths))
+                tot_types.extend([defect_type] * len(img_paths))
+
+        assert len(img_tot_paths) == len(gt_tot_paths), "Mismatch between test images and ground truth pairs!"
+
+        return img_tot_paths, gt_tot_paths, tot_labels, tot_types
+
+    def __len__(self):
+        return len(self.img_paths)
+
+    def __getitem__(self, idx):
+        img_path, gt, label, img_type = self.img_paths[idx], self.gt_paths[idx], self.labels[idx], self.types[idx]
+        img = Image.open(img_path).convert('RGB')  # Open image and convert to RGB
+        img = self.transform(img)  # Apply transformations to image
+        if gt == 0:
+            gt = torch.zeros([1, img.size()[-2], img.size()[-2]])  # If ground truth is 0, create a zero tensor
+        else:
+            gt = Image.open(gt)  # Open ground truth image
+            gt = self.gt_transform(gt)  # Apply transformations to ground truth image
+
+        assert img.size()[1:] == gt.size()[1:], "Mismatch between image size and ground truth size!"
+
+        return img, gt, label, img_type, img_path
+    
+
+# Custom dataset class for MVTec dataset
+class MVTecDataset_no_seg(torch.utils.data.Dataset):
+    def __init__(self, root, transform, phase):
+        if phase == 'train':
+            self.img_path = os.path.join(root, 'train')
+        else:
+            self.img_path = os.path.join(root, 'test')
+        self.transform = transform
+        # load dataset
+        self.img_paths, self.labels, self.types = self.load_dataset()  # self.labels => good : 0, anomaly : 1
+
+    def load_dataset(self):
+
+        img_tot_paths = []
+        tot_labels = []
+        tot_types = []
+
+        defect_types = os.listdir(self.img_path)
+
+        for defect_type in defect_types:
+            if defect_type == 'good':
+                img_paths = glob.glob(os.path.join(self.img_path, defect_type) + "/*.png")
+                img_tot_paths.extend(img_paths)
+                tot_labels.extend([0] * len(img_paths))
+                tot_types.extend(['good'] * len(img_paths))
+            else:
+                img_paths = glob.glob(os.path.join(self.img_path, defect_type) + "/*.png")
+                img_paths.sort()
+                img_tot_paths.extend(img_paths)
+                tot_labels.extend([1] * len(img_paths))
+                tot_types.extend([defect_type] * len(img_paths))
+
+        #assert len(img_tot_paths) == len(gt_tot_paths), "Something wrong with test and ground truth pair!"
+
+        return img_tot_paths, tot_labels, tot_types
+
+    def __len__(self):
+        return len(self.img_paths)
+
+    def __getitem__(self, idx):
+        img_path,  label, img_type = self.img_paths[idx],  self.labels[idx], self.types[idx]
+        img = Image.open(img_path).convert('RGB')
+
+        img = np.array(img)
+        #print(img.shape)
+        img = Image.fromarray(img)
+
+        img = self.transform(img)
+
+        #assert img.size()[1:] == gt.size()[1:], "image.size != gt.size !!!"
+        #print(img.shape,img_type)
+        return img, label, img_type
+    
+#######################  visA  ###############################
+    
+# Custom dataset class for visA dataset
+class visADataset(torch.utils.data.Dataset):
+    def __init__(self, root, transform, gt_transform, phase):
+        if phase == 'train':
+            self.img_path = os.path.join(root, 'train')  # Path for training images
+        else:
+            self.img_path = os.path.join(root, 'test')  # Path for test images
+            self.gt_path = os.path.join(root, 'ground_truth')  # Path for ground truth images
+        self.transform = transform
+        self.gt_transform = gt_transform
+        # Load dataset
+        self.img_paths, self.gt_paths, self.labels, self.types = self.load_dataset()  # self.labels => good : 0, anomaly : 1
+
+    def load_dataset(self):
+        img_tot_paths = []
+        gt_tot_paths = []
+        tot_labels = []
+        tot_types = []
+
+        defect_types = os.listdir(self.img_path)  # List all defect types
+        print(defect_types)
+        for defect_type in defect_types:
+            if defect_type == 'good':  # Good images (no anomalies)
+                img_paths = glob.glob(os.path.join(self.img_path, defect_type) + "/*.JPG")
+                img_tot_paths.extend(img_paths)
+                gt_tot_paths.extend([0] * len(img_paths))
+                tot_labels.extend([0] * len(img_paths))
+                tot_types.extend(['good'] * len(img_paths))
+            else:  # Anomalous images
+                img_paths = glob.glob(os.path.join(self.img_path, defect_type) + "/*.JPG")
                 gt_paths = glob.glob(os.path.join(self.gt_path, defect_type) + "/*.png")
                 img_paths.sort()
                 gt_paths.sort()
