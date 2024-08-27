@@ -196,7 +196,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
 
 
                 # Update AUROC and AUPRO lists
-                max_auc.append(auroc_px)
+                max_auc.append(auroc_sp)
                 max_auc_epoch.append(epoch + 1)
                 max_pr.append(aupro_px)
                 max_pr_epoch.append(epoch + 1)
@@ -209,12 +209,12 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
                 print('max_epoch = ', max_pr_epoch[max_pr.index(max(max_pr))])
 
                 # Calculate the average score of the current epoch
-                current_avg_score = (auroc_px + aupro_px) / 2
+                current_avg_score = (auroc_sp + aupro_px) / 2
 
                 # Save model only if the average of AUROC and AUPRO is the maximum
                 if current_avg_score > best_avg_score:
-                    print(f"New best model found at epoch {epoch+1} with average score: {current_avg_score:.3f} (Pixel Auroc{auroc_px:.3f}/Pixel Aupro{aupro_px:.3f})")
-                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'pixel_auc=' + str(auroc_px) +'aupro=' + str(aupro_px) +'.pth')
+                    print(f"New best model found at epoch {epoch+1} with average score: {current_avg_score:.3f} (Sample Auroc{auroc_sp:.3f}/Pixel Aupro{aupro_px:.3f})")
+                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'pixel_auc=' + str(auroc_sp) +'aupro=' + str(aupro_px) +'.pth')
                     best_avg_score = current_avg_score
     return auroc_sp
 
