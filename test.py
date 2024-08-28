@@ -253,13 +253,20 @@ def evaluation(encoder, decoder, res, dataloader, device, img_path):
             img = img.to(device)
             inputs = encoder(img)
             outputs = decoder(inputs[3], inputs[0:3], res) 
-
             # Compute anomaly maps using encoder's first three outputs and decoder's outputs
             anomaly_map, _ = cal_anomaly_map(inputs[0:3], outputs, img.shape[-1], amap_mode='a')
             anomaly_map = gaussian_filter(anomaly_map, sigma=4)  # Apply Gaussian filter
+
             gt[gt > 0.5] = 1
             gt[gt <= 0.5] = 0
+            # gt = gt.int()
+
+            #unique_values = torch.unique(gt)
+            #print("Unique values in gt:", unique_values)
+
             if label.item() != 0:
+                # print(gt.squeeze(0).cpu().numpy().astype(int))
+                # print(set(gt.flatten()))
                 aupro_list.append(compute_pro(gt.squeeze(0).cpu().numpy().astype(int),
                                               anomaly_map[np.newaxis, :, :]))
 
@@ -272,3 +279,45 @@ def evaluation(encoder, decoder, res, dataloader, device, img_path):
         auroc_px = round(roc_auc_score(gt_list_px, pr_list_px), 3)
         auroc_sp = round(roc_auc_score(gt_list_sp, pr_list_sp), 3)
     return auroc_px, auroc_sp, round(np.mean(aupro_list), 3)
+
+
+# Evaluation with segmentation, very time-consuming
+def evaluation_visA(encoder, decoder, res, dataloader, device, img_path):
+    decoder.eval()
+    gt_list_px = []
+    pr_list_px = []
+    gt_list_sp = []
+    pr_list_sp = []
+    # aupro_list = []
+    with torch.no_grad():
+        for img, gt, label, _, _ in dataloader:
+
+            img = img.to(device)
+            inputs = encoder(img)
+            outputs = decoder(inputs[3], inputs[0:3], res) 
+            # Compute anomaly maps using encoder's first three outputs and decoder's outputs
+            anomaly_map, _ = cal_anomaly_map(inputs[0:3], outputs, img.shape[-1], amap_mode='a')
+            anomaly_map = gaussian_filter(anomaly_map, sigma=4)  # Apply Gaussian filter
+
+            gt[gt > 0.5] = 1
+            gt[gt <= 0.5] = 0
+            # gt = gt.int()
+
+            #unique_values = torch.unique(gt)
+            #print("Unique values in gt:", unique_values)
+
+            # if label.item() != 0:
+            #     # print(gt.squeeze(0).cpu().numpy().astype(int))
+            #     # print(set(gt.flatten()))
+            #     aupro_list.append(compute_pro(gt.squeeze(0).cpu().numpy().astype(int),
+            #                                   anomaly_map[np.newaxis, :, :]))
+
+            # Convert multi-dimensional arrays to one-dimensional arrays
+            gt_list_px.extend(gt.cpu().numpy().astype(int).ravel())
+            pr_list_px.extend(anomaly_map.ravel())
+
+            gt_list_sp.append(np.max(gt.cpu().numpy().astype(int)))
+            pr_list_sp.append(np.max(anomaly_map))
+        auroc_px = round(roc_auc_score(gt_list_px, pr_list_px), 3)
+        auroc_sp = round(roc_auc_score(gt_list_sp, pr_list_sp), 3)
+    return auroc_px, auroc_sp#, round(np.mean(aupro_list), 3)

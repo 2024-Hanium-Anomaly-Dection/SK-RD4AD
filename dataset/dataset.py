@@ -319,7 +319,7 @@ class visADataset(torch.utils.data.Dataset):
         tot_types = []
 
         defect_types = os.listdir(self.img_path)  # List all defect types
-        print(defect_types)
+        #print(defect_types)
         for defect_type in defect_types:
             if defect_type == 'good':  # Good images (no anomalies)
                 img_paths = glob.glob(os.path.join(self.img_path, defect_type) + "/*.JPG")

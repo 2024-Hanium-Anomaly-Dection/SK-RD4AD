@@ -9,7 +9,7 @@ from model.de_resnet import de_resnet18, de_resnet34, de_wide_resnet50_2, de_res
 from dataset.dataset import MVTecDataset,MVTecDataset_no_seg,visADataset,visADataset_no_seg
 import torch.backends.cudnn as cudnn
 import argparse
-from test import evaluation_me, evaluation_visualization, evaluation, evaluation_visualization_no_seg
+from test import evaluation_visA,evaluation_me, evaluation_visualization, evaluation, evaluation_visualization_no_seg
 from torch.nn import functional as F
 import argparse
 import sys
@@ -133,8 +133,8 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
 
     max_auc = []
     max_auc_epoch = []
-    max_pr = []
-    max_pr_epoch = []
+    max_p_auc = []
+    max_p_auc_epoch = []
     best_avg_score = 0
 
     # Start training
@@ -191,30 +191,30 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
                 if vis == 1:
                     evaluation_visualization(encoder, decoder, res, test_dataloader, device, print_canshu, score_num, img_path)
                 # This part calculates the basic results and saves the results of the current epoch.
-                auroc_px, auroc_sp, aupro_px = evaluation(encoder, decoder, res, test_dataloader, device, img_path)
-                print('Pixel Auroc: {:.3f}, Sample Auroc: {:.3f}, Pixel Aupro: {:.3}'.format(auroc_px, auroc_sp, aupro_px))
+                auroc_px, auroc_sp = evaluation_visA(encoder, decoder, res, test_dataloader, device, img_path)
+                print('Pixel Auroc: {:.3f}, Sample Auroc: {:.3f}'.format(auroc_px, auroc_sp))
 
 
                 # Update AUROC and AUPRO lists
                 max_auc.append(auroc_sp)
                 max_auc_epoch.append(epoch + 1)
-                max_pr.append(aupro_px)
-                max_pr_epoch.append(epoch + 1)
+                max_p_auc.append(auroc_px)
+                max_p_auc_epoch.append(epoch + 1)
 
 
                 # Print maximum AUROC and AUPRO, and the corresponding epoch
-                print('max_auc = ', max(max_auc))
+                print('max_auc_sample = ', max(max_auc))
                 print('max_epoch = ', max_auc_epoch[max_auc.index(max(max_auc))])
-                print('max_pr = ', max(max_pr))
-                print('max_epoch = ', max_pr_epoch[max_pr.index(max(max_pr))])
+                print('max_auc_pixel = ', max(max_p_auc))
+                print('max_epoch = ', max_p_auc_epoch[max_p_auc.index(max(max_p_auc))])
 
                 # Calculate the average score of the current epoch
-                current_avg_score = (auroc_sp + aupro_px) / 2
+                current_avg_score = (auroc_sp + auroc_px) / 2
 
                 # Save model only if the average of AUROC and AUPRO is the maximum
                 if current_avg_score > best_avg_score:
-                    print(f"New best model found at epoch {epoch+1} with average score: {current_avg_score:.3f} (Sample Auroc{auroc_sp:.3f}/Pixel Aupro{aupro_px:.3f})")
-                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'pixel_auc=' + str(auroc_sp) +'aupro=' + str(aupro_px) +'.pth')
+                    print(f"New best model found at epoch {epoch+1} with average score: {current_avg_score:.3f} (Sample Auroc{auroc_sp:.3f}/Pixel Auroc{auroc_px:.3f})")
+                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'sample_auc=' + str(max(max_auc)) +'pixel_auc=' + str(max(max_p_auc)) +'.pth')
                     best_avg_score = current_avg_score
     return auroc_sp
 
@@ -249,8 +249,9 @@ if __name__ == '__main__':
     print('--------args----------\n')
 
     if args.class_ == 'all':
-        all = ['candle', 'capsules', 'cashew', 'chewinggum', 'fryum', 'macaroni1', 'macaroni2',
-               'pcb1', 'pcb2', 'pcb3', 'pcb4', 'pipe_fryum']
+        all = [ 'pcb1', 'pcb2', 'pcb3', 'pcb4', 'pipe_fryum',
+               'candle', 'capsules', 'cashew', 'chewinggum', 'fryum',
+              'macaroni1','macaroni2']
         epoch_ = [200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]
         rate_ = [0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005, 0.005]
         for class_, epoch, rate in zip(all, epoch_, rate_):

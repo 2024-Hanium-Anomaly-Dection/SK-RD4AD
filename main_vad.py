@@ -174,7 +174,7 @@ def train(epochs, learning_rate, res, batch_size, print_epoch, seg, data_path, s
 
                 if current_avg_score > best_avg_score:
                     print(f"New best model found at epoch {epoch+1} with Sample Auroc{auroc_sp:.3f}")
-                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
+                    torch.save(decoder.state_dict(), ckp_path + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
                     best_avg_score = current_avg_score
                
                 if vis == 1:  # Visualization output when no mask
@@ -235,11 +235,3 @@ if __name__ == '__main__':
         setup_seed(seed)
         train(epoch, args.learning_rate, args.res, args.batch_size, print_epoch, args.seg, args.data_path, args.save_path, args.print_canshu, args.score_num, args.print_loss, args.img_path, args.vis, args.cut, args.layerloss, rate, args.print_max, args.net, args.L2, seed)
         print('*************************')  
-
-    if args.class_ != 'all':
-            for seed in args.seed:
-                print('*************************')
-                print('seed:', seed)
-                setup_seed(seed)
-                train(args.class_, args.epochs, args.learning_rate, args.res, args.batch_size, args.print_epoch, args.seg, args.data_path, args.save_path, args.print_canshu, args.score_num, args.print_loss, args.img_path, args.vis, args.cut, args.layerloss, args.rate, args.print_max, args.net, args.L2, seed)
-                print('*************************') 
