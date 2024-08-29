@@ -113,8 +113,9 @@ def compute_pro(masks: ndarray, amaps: ndarray, num_th: int = 200) -> None:
     return pro_auc
 
 # Evaluation function without segmentation
-def evaluation_me(encoder, decoder, res, dataloader, device, print_canshu, score_num):
+def evaluation_me(encoder, bn, decoder, res, dataloader, device, print_canshu, score_num):
     decoder.eval() 
+    bn.eval()
     encoder.eval()
     
     # Lists to store sample-level labels and predictions
@@ -126,7 +127,7 @@ def evaluation_me(encoder, decoder, res, dataloader, device, print_canshu, score
         for (img, label, _) in dataloader:
             img = img.to(device) 
             inputs = encoder(img)
-            outputs = decoder(inputs[3], inputs[0:3], res)
+            outputs = decoder(bn(inputs), inputs[0:3], res)
             
             # Calculate final anomaly map
             anomaly_map, _ = cal_anomaly_map(inputs[0:3], outputs, img.shape[-1], amap_mode='a')
@@ -240,8 +241,9 @@ def evaluation_visualization_no_seg(encoder, decoder, res, dataloader, device, p
             count += 1
 
 # Evaluation with segmentation, very time-consuming
-def evaluation(encoder, decoder, res, dataloader, device, img_path):
+def evaluation(encoder,bn, decoder, res, dataloader, device, img_path):
     decoder.eval()
+    bn.eval()
     gt_list_px = []
     pr_list_px = []
     gt_list_sp = []
@@ -252,7 +254,7 @@ def evaluation(encoder, decoder, res, dataloader, device, img_path):
 
             img = img.to(device)
             inputs = encoder(img)
-            outputs = decoder(inputs[3], inputs[0:3], res) 
+            outputs = decoder(bn(inputs), inputs[0:3], res) 
             # Compute anomaly maps using encoder's first three outputs and decoder's outputs
             anomaly_map, _ = cal_anomaly_map(inputs[0:3], outputs, img.shape[-1], amap_mode='a')
             anomaly_map = gaussian_filter(anomaly_map, sigma=4)  # Apply Gaussian filter
@@ -282,8 +284,9 @@ def evaluation(encoder, decoder, res, dataloader, device, img_path):
 
 
 # Evaluation with segmentation, very time-consuming
-def evaluation_visA(encoder, decoder, res, dataloader, device, img_path):
+def evaluation_visA(encoder, bn, decoder, res, dataloader, device, img_path):
     decoder.eval()
+    bn.eval()
     gt_list_px = []
     pr_list_px = []
     gt_list_sp = []
@@ -294,7 +297,7 @@ def evaluation_visA(encoder, decoder, res, dataloader, device, img_path):
 
             img = img.to(device)
             inputs = encoder(img)
-            outputs = decoder(inputs[3], inputs[0:3], res) 
+            outputs = decoder(bn(inputs), inputs[0:3], res) 
             # Compute anomaly maps using encoder's first three outputs and decoder's outputs
             anomaly_map, _ = cal_anomaly_map(inputs[0:3], outputs, img.shape[-1], amap_mode='a')
             anomaly_map = gaussian_filter(anomaly_map, sigma=4)  # Apply Gaussian filter

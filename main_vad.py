@@ -101,8 +101,9 @@ def train(epochs, learning_rate, res, batch_size, print_epoch, seg, data_path, s
 
     # Choose which network to use
     if net == 'wide_res50':   
-        encoder = wide_resnet50_2(pretrained=True)  # Encoder
+        encoder, bn = wide_resnet50_2(pretrained=True)  # Encoder
         encoder = encoder.to(device)
+        bn = bn.to(device)
         encoder.eval()  # Fix encoder model parameters    
         decoder = de_wide_resnet50_2(pretrained=False)  # Decoder, inverse structure of encoder
         decoder = decoder.to(device)
@@ -136,11 +137,12 @@ def train(epochs, learning_rate, res, batch_size, print_epoch, seg, data_path, s
     # Start training
     for epoch in range(epochs):
         decoder.train()
+        bn.train()
         loss_list = []
         for img, label in train_dataloader:
             img = img.to(device) 
             inputs = encoder(img)
-            outputs = decoder(inputs[3], inputs[0:3], res)  
+            outputs = decoder(bn(inputs), inputs[0:3], res)  
 
             # Choose loss function  
             if layerloss == 0:
@@ -159,7 +161,7 @@ def train(epochs, learning_rate, res, batch_size, print_epoch, seg, data_path, s
         if (epoch + 1) % print_epoch == 0:
             # Test set without mask
             if seg == 0:
-                auroc_sp= evaluation_me(encoder, decoder, res, test_dataloader, device, print_canshu, score_num)
+                auroc_sp= evaluation_me(encoder, bn, decoder, res, test_dataloader, device, print_canshu, score_num)
                 print('epoch:', (epoch + 1))
                 print('Sample Auroc{:.3f}'.format(auroc_sp))
                 max_auc.append(auroc_sp)
@@ -174,7 +176,7 @@ def train(epochs, learning_rate, res, batch_size, print_epoch, seg, data_path, s
 
                 if current_avg_score > best_avg_score:
                     print(f"New best model found at epoch {epoch+1} with Sample Auroc{auroc_sp:.3f}")
-                    torch.save(decoder.state_dict(), ckp_path + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
+                    torch.save({'bn': bn.state_dict(),'decoder': decoder.state_dict()}, ckp_path + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
                     best_avg_score = current_avg_score
                
                 if vis == 1:  # Visualization output when no mask
@@ -185,7 +187,7 @@ def train(epochs, learning_rate, res, batch_size, print_epoch, seg, data_path, s
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--epochs', default=200, type=int)  # Training epochs
-    parser.add_argument('--res', default=3, type=int)  # Select the number of connections, can choose 1, 2, 3, which actually represents 0, 1, 2 connections
+    parser.add_argument('--res', default=1, type=int)  # Define skipconnection
     parser.add_argument('--learning_rate', default=0.005, type=float)  # Learning rate
     parser.add_argument('--batch_size', default=16, type=int)  # Batch size
     parser.add_argument('--seed', default=[111,250,444,999,114514], nargs='+', type=int)  # Random seed
