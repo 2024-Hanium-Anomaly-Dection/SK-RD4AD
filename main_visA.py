@@ -105,8 +105,9 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
 
     # Choose which network to use
     if net == 'wide_res50':   
-        encoder = wide_resnet50_2(pretrained=True)  # Encoder
+        encoder,bn = wide_resnet50_2(pretrained=True)  # Encoder
         encoder = encoder.to(device)
+        bn = bn.to(device)
         encoder.eval()  # Fix encoder model parameters    
         decoder = de_wide_resnet50_2(pretrained=False)  # Decoder, inverse structure of encoder
         decoder = decoder.to(device)
@@ -129,7 +130,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
         decoder = de_resnet50(pretrained=False)  # Decoder, inverse structure of encoder
         decoder = decoder.to(device)
 
-    optimizer = torch.optim.Adam(list(decoder.parameters()), lr=learning_rate, betas=(0.5,0.999))  # Pass a list of parameters to be optimized
+    optimizer = torch.optim.Adam(list(decoder.parameters())+list(bn.parameters()), lr=learning_rate, betas=(0.5,0.999))  # Pass a list of parameters to be optimized
 
     max_auc = []
     max_auc_epoch = []
@@ -140,11 +141,12 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
     # Start training
     for epoch in range(epochs):
         decoder.train()
+        bn.train()
         loss_list = []
         for img, label in train_dataloader:
             img = img.to(device) 
             inputs = encoder(img)
-            outputs = decoder(inputs[3], inputs[0:3], res)  
+            outputs = decoder(bn(inputs), inputs[0:3], res)  
 
             # Choose loss function  
             if layerloss == 0:
@@ -163,7 +165,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
         if (epoch + 1) % print_epoch == 0:
             # Test set without mask
             if seg == 0:
-                auroc_sp= evaluation_me(encoder, decoder, res, test_dataloader, device, print_canshu, score_num)
+                auroc_sp= evaluation_me(encoder, bn, decoder, res, test_dataloader, device, print_canshu, score_num)
                 print('epoch:', (epoch + 1))
                 print('Sample Auroc{:.3f}'.format(auroc_sp))
                 max_auc.append(auroc_sp)
@@ -178,7 +180,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
 
                 if current_avg_score > best_avg_score:
                     print(f"New best model found at epoch {epoch+1} with Sample Auroc{auroc_sp:.3f}")
-                    torch.save(decoder.state_dict(), ckp_path + str(epoch+1) + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
+                    torch.save({'bn': bn.state_dict(),'decoder': decoder.state_dict()}, ckp_path + str(epoch+1) + str(seed) + 'sample_auc=' + str(auroc_sp) + '.pth')
                     best_avg_score = current_avg_score
                
                 if vis == 1:  # Visualization output when no mask
@@ -191,7 +193,7 @@ def train(class_, epochs, learning_rate, res, batch_size, print_epoch, seg, data
                 if vis == 1:
                     evaluation_visualization(encoder, decoder, res, test_dataloader, device, print_canshu, score_num, img_path)
                 # This part calculates the basic results and saves the results of the current epoch.
-                auroc_px, auroc_sp = evaluation_visA(encoder, decoder, res, test_dataloader, device, img_path)
+                auroc_px, auroc_sp = evaluation_visA(encoder,bn, decoder, res, test_dataloader, device, img_path)
                 print('Pixel Auroc: {:.3f}, Sample Auroc: {:.3f}'.format(auroc_px, auroc_sp))
 
 

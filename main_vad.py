@@ -126,7 +126,7 @@ def train(epochs, learning_rate, res, batch_size, print_epoch, seg, data_path, s
         decoder = de_resnet50(pretrained=False)  # Decoder, inverse structure of encoder
         decoder = decoder.to(device)
 
-    optimizer = torch.optim.Adam(list(decoder.parameters()), lr=learning_rate, betas=(0.5,0.999))  # Pass a list of parameters to be optimized
+    optimizer = torch.optim.Adam(list(decoder.parameters())+list(bn.parameters()), lr=learning_rate, betas=(0.5,0.999))  # Pass a list of parameters to be optimized
 
     max_auc = []
     max_auc_epoch = []
