@@ -35,6 +35,7 @@ We have write both training and evaluation function in the main.py, execute the 
     python main.py 
     \--epochs 200 \--res 3 \--learning_rate 0.005 \--batch_size 16 \--seed 111 \--class_ all \--seg 1 \--print_epoch 10 \--data_path /home/intern24/mvtec/ \--save_path /home/intern24/anomaly_checkpoints/dat_train2/skipconnection/ \--print_canshu 1 \--score_num 1 \--print_loss 1 \--img_path /home/intern24/anomaly_checkpoints/dat_train2/skipconnection/result_img/ \--vis 0 \--cut 0 \--layerloss 1 \--rate 0.1 \--print_max 1 \--net wide_res50 \--L2 0
 ```
+</details>
 
 ### MVTec Dataset Performance
 
