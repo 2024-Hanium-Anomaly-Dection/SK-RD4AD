@@ -9,7 +9,7 @@ The original RD4AD model, as noted by its creators, faced limitations in effecti
 
 To overcome these challenges, we introduced **skip connections** in our model. This enhancement allows features extracted at each encoder layer to be directly transmitted to corresponding layers in the decoder, minimizing information loss and maximizing feature reuse.
 
-![Student-teacher Network with Skip Connections](path/to/diagram.png "Student-teacher Network with Skip Connections")
+![image](https://github.com/user-attachments/assets/51a957cd-9027-4b62-8edb-5be546935554)
 
 The diagram above illustrates our modified RD4AD model, SK-RD4AD , which integrates skip connections at multiple layers. This architecture ensures that features extracted at each encoder layer are not only passed down through the network but are also directly utilized in the corresponding decoder layers. This helps in mitigating information dilution and loss commonly seen in deep networks.
 Our model incorporates skip connections to overcome the limitations identified by the original RD4AD authors, where the network's inability to effectively utilize varying feature map sizes and information loss in deeper layers was causing performance bottlenecks.
@@ -81,8 +81,7 @@ By introducing skip connections, our RD4AD model not only addresses the previous
       year={2024},
       eprint={2405.04953},
       archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
+      primaryClass={cs.CV}}
 
 
 
