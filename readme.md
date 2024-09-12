@@ -9,7 +9,7 @@ The original RD4AD model struggled with information loss in deep layers, especia
 ![image](https://github.com/user-attachments/assets/64b2f6de-1ec1-4232-a86c-28a4f5836b3e)
 
 ### Key Improvements in Our Model:
-1. **Skip Connections**: We introduce connections between non-corresponding layers (e.g., E1 to D2, E2 to D3), preserving both low- and high-level features for more effective reconstruction.
+1. **Skip Connections**: We introduce connections between non-corresponding layers (e.g., E3 to D2, E1 to D2), preserving both low- and high-level features for more effective reconstruction.
 2. **Multi-Scale Feature Preservation**: The network can now better handle subtle anomalies by retaining fine-grained and high-level details simultaneously.
 
 ### Advantages of Our Model:
