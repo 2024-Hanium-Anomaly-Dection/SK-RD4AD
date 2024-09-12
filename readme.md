@@ -1,4 +1,4 @@
-# RD4AD Enhanced Model with Non-Corresponding Skip Connections
+# Skip-Connected Reverse Distillation for Robust One-Class Anomaly Detection
 
 We introduce **SK-RD4AD**, an advanced anomaly detection model built upon the **Reverse Distillation for Anomaly Detection (RD4AD)** framework. SK-RD4AD improves the RD4AD model by incorporating **skip connections** between non-corresponding layers to mitigate deep feature loss, preserving multi-scale feature representations and improving anomaly detection performance.
 
