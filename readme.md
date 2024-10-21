@@ -66,6 +66,14 @@ python main.py \
 
 The results demonstrate the effectiveness of SK-RD4AD in detecting fine-grained anomalies, significantly improving performance across multiple datasets.
 
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/b2fe4e4b-6a4c-4c86-8caa-ebef8da92dd8" alt="figg3" width="45%">
+  <img src="https://github.com/user-attachments/assets/dbbd9d8a-f70a-4a8f-9a9b-49e2f95ed4be" alt="ffig2" width="45%">
+</p>
+
+
+
 ## Conclusion
 
 SK-RD4AD effectively addresses deep feature loss by utilizing **non-corresponding skip connections**, enabling the model to better retain multi-scale features, particularly in challenging anomaly detection scenarios. This makes SK-RD4AD a robust tool for anomaly detection in various industrial applications.
