@@ -2,7 +2,7 @@
 
 We introduce **SK-RD4AD**, an advanced anomaly detection model built upon the **Reverse Distillation for Anomaly Detection (RD4AD)** framework. SK-RD4AD improves the RD4AD model by incorporating **skip connections** between non-corresponding layers to mitigate deep feature loss, preserving multi-scale feature representations and improving anomaly detection performance.
 
-## Model Architecture Overview
+## FrameWork
 
 The original RD4AD model struggled with information loss in deep layers, especially when handling multi-scale features. Our approach integrates **non-corresponding skip connections** between encoder and decoder layers, ensuring that feature maps from earlier stages of the encoder are preserved and passed directly to deeper decoder layers.
 
@@ -54,6 +54,7 @@ python main.py \
 | Carpet       | 98.9 / 97.0                  | **99.2 / 97.7**                |
 | Bottle       | 98.7 / 96.6                  | **98.8 / 96.9**                |
 | Hazelnut     | 98.9 / 95.5                  | **99.1 / 96.2**                |
+| ....       | ... / ...                  | ... / ...               |
 | Leather      | 99.4 / 99.1                  | **99.6 / 99.2**                |
 | Total Avg    | 97.8 / 93.9                  | **98.06 / 94.69**              |
 
@@ -66,6 +67,7 @@ python main.py \
 The results demonstrate the effectiveness of SK-RD4AD in detecting fine-grained anomalies, significantly improving performance across multiple datasets.
 
 
+### 6. Visualization
 <p align="center">
   <img src="https://github.com/user-attachments/assets/b2fe4e4b-6a4c-4c86-8caa-ebef8da92dd8" alt="figg3" width="45%">
   <img src="https://github.com/user-attachments/assets/dbbd9d8a-f70a-4a8f-9a9b-49e2f95ed4be" alt="ffig2" width="45%">
