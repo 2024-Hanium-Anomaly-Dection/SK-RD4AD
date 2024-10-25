@@ -58,7 +58,7 @@ python main.py \
 | Leather      | 99.4 / 99.1                  | **99.6 / 99.2**                |
 | Total Avg    | 97.8 / 93.9                  | **98.06 / 94.69**              |
 
-The MVTec dataset results demonstrate that the SK-RD4AD model significantly outperforms the baseline RD4AD model in anomaly detection. With a total average performance of **98.06 / 94.69**, SK-RD4AD showcases its enhanced capability to detect subtle anomalies across various categories. This improvement highlights its effectiveness in capturing nuanced features, making it a valuable solution for industrial applications requiring precise anomaly detection. Overall, SK-RD4AD's advancements emphasize its potential in addressing complex anomaly detection challenges.
+The MVTec dataset results demonstrate that the SK-RD4AD model significantly outperforms the baseline RD4AD model in anomaly detection. With a total average performance of **98.06 / 94.69**, SK-RD4AD showcases its **enhanced capability to detect subtle anomalies** across various categories. This improvement highlights its **effectiveness in capturing nuanced features**, making it a valuable solution for industrial applications requiring precise anomaly detection. Overall, SK-RD4AD's advancements emphasize its potential in addressing complex anomaly detection challenges.
 
 ### 5. Valeo Dataset Performance
 
@@ -66,7 +66,7 @@ The MVTec dataset results demonstrate that the SK-RD4AD model significantly outp
 |-----------|----------------|----------------|
 | One-Class | 84.5           | **87.0**       |
 
-The SK-RD4AD model demonstrates significant enhancements in performance on the Valeo Anomaly Dataset (VAD), achieving an AUROC of **87.0**, compared to the baseline AUROC of **84.5**. This improvement highlights the model's robustness and effectiveness in detecting fine-grained anomalies in real-world applications. The results further validate SK-RD4AD's capability to generalize across different datasets, reinforcing its potential as a powerful tool for anomaly detection tasks. Overall, the performance gains on the VAD dataset underscore the model's strengths in handling complex and subtle anomaly scenarios.
+The SK-RD4AD model demonstrates **significant enhancements in performance on the Valeo Anomaly Dataset (VAD)**, achieving an AUROC of **87.0**, compared to the baseline AUROC of **84.5**. This improvement highlights the model's robustness and effectiveness in detecting fine-grained anomalies in **real-world applications**. The results further validate SK-RD4AD's capability to generalize across different datasets, reinforcing its potential as a powerful tool for anomaly detection tasks. Overall, the performance gains on the VAD dataset underscore the model's strengths in handling complex and subtle anomaly scenarios.
 
 
 ### 6. Visualization
