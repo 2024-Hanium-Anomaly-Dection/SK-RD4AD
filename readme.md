@@ -60,7 +60,7 @@ python main.py \
 
 The MVTec dataset results demonstrate that the SK-RD4AD model significantly outperforms the baseline RD4AD model in anomaly detection. With a total average performance of **98.06 / 94.69**, SK-RD4AD showcases its **enhanced capability to detect subtle anomalies** across various categories. This improvement highlights its **effectiveness in capturing nuanced features**, making it a valuable solution for industrial applications requiring precise anomaly detection. Overall, SK-RD4AD's advancements emphasize its potential in addressing complex anomaly detection challenges.
 
-### 5. Valeo Dataset Performance
+### 5. Valeo Anomaly Dataset Performance
 
 | Setting   | Baseline AUROC | SK-RD4AD AUROC |
 |-----------|----------------|----------------|
