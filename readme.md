@@ -33,6 +33,7 @@ pip install -r requirements.txt
 Download the MVTec and VAD datasets from:
 - [MVTec AD Dataset](https://www.mvtec.com/company/research/datasets/mvtec-ad/)
 - [Valeo Anomaly Dataset (VAD)](https://drive.google.com/file/d/1LbHHJHCdkvhzVqekAIRdWjBWaBHxPjuu/view/)
+- [visA Dataset](https://github.com/amazon-science/spot-diff)
 
 ### 3. Train and Test the Model
 To train and evaluate the model, run the following command:
