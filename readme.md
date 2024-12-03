@@ -100,7 +100,6 @@ The results on the VisA dataset show that SK-RD4AD achieves substantial performa
 <p align="center">
   <img src="https://github.com/user-attachments/assets/b2fe4e4b-6a4c-4c86-8caa-ebef8da92dd8" alt="figg3" width="45%">
   <img src="https://github.com/user-attachments/assets/dbbd9d8a-f70a-4a8f-9a9b-49e2f95ed4be" alt="ffig2" width="45%">
-  <img src="https://github.com/user-attachments/assets/80e9e897-96ee-45d2-83bd-ece84644ec89" alt="ffig1" width="45%">
 
 </p>
 
