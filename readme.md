@@ -96,7 +96,7 @@ The SK-RD4AD model demonstrates **significant enhancements in performance on the
 The results on the VisA dataset show that SK-RD4AD achieves substantial performance gains over the baseline RD4AD, with an average AUROC/AUPRO improvement from **97.8 / 70.9** to **98.5 / 92.1**. These gains, particularly in categories such as PCB, Pipe Fryum, and Macaroni, highlight SK-RD4AD's capability to detect diverse and intricate anomalies with high accuracy. The significant improvements in AUPRO across categories confirm the model's ability to reliably capture subtle, complex anomalies, making it an ideal tool for industrial inspection tasks where precision is essential.
 
 
-### 6. Visualization
+### 7. Visualization
 <p align="center">
   <img src="https://github.com/user-attachments/assets/b2fe4e4b-6a4c-4c86-8caa-ebef8da92dd8" alt="figg3" width="45%">
   <img src="https://github.com/user-attachments/assets/dbbd9d8a-f70a-4a8f-9a9b-49e2f95ed4be" alt="ffig2" width="45%">
